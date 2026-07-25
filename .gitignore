@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Build files
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
