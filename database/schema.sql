@@ -54,3 +54,22 @@ CREATE TABLE IF NOT EXISTS vehicles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was created',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was last updated'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle inventory';
+
+-- =============================================================================
+-- Table: service_bookings
+-- Description: Stores vehicle service appointments, maintenance types, status, and customer links.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS service_bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each service booking',
+    customer_id INT NOT NULL COMMENT 'Foreign key referencing customers(customer_id)',
+    vehicle_id INT NOT NULL COMMENT 'Foreign key referencing vehicles(vehicle_id)',
+    service_date DATE NOT NULL COMMENT 'Scheduled date for the vehicle service',
+    service_type VARCHAR(100) NOT NULL COMMENT 'Type of maintenance (e.g. Oil Change, Brake Inspection, General Service)',
+    service_status VARCHAR(30) NOT NULL DEFAULT 'Pending' COMMENT 'Current booking status (Pending, In_Progress, Completed, Cancelled)',
+    remarks TEXT NULL COMMENT 'Additional customer instructions or technician service notes',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when booking record was created',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when booking record was last updated',
+    CONSTRAINT fk_service_bookings_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_service_bookings_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing vehicle service appointments';

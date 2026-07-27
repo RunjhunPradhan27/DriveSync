@@ -3,6 +3,7 @@ const healthRoutes = require('./routes/health.routes');
 const customerRoutes = require('./routes/customer.routes');
 const employeeRoutes = require('./routes/employee.routes');
 const vehicleRoutes = require('./routes/vehicle.routes');
+const serviceBookingRoutes = require('./routes/serviceBooking.routes');
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.use('/health', healthRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/service-bookings', serviceBookingRoutes);
 
 module.exports = app;
