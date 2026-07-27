@@ -2,6 +2,7 @@ const express = require('express');
 const healthRoutes = require('./routes/health.routes');
 const customerRoutes = require('./routes/customer.routes');
 const employeeRoutes = require('./routes/employee.routes');
+const vehicleRoutes = require('./routes/vehicle.routes');
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.use(express.json());
 app.use('/health', healthRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 module.exports = app;

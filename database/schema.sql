@@ -34,3 +34,23 @@ CREATE TABLE IF NOT EXISTS employees (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when employee record was created',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when employee record was last updated'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership staff records';
+
+-- =============================================================================
+-- Table: vehicles
+-- Description: Stores vehicle inventory catalog, specifications, pricing, and availability.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS vehicles (
+    vehicle_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each vehicle',
+    make VARCHAR(100) NOT NULL COMMENT 'Manufacturer brand name (e.g. Toyota, Honda, BMW)',
+    model VARCHAR(100) NOT NULL COMMENT 'Specific vehicle model name (e.g. Camry, Civic, X5)',
+    model_year YEAR NOT NULL COMMENT 'Manufacturing model year',
+    color VARCHAR(50) NULL COMMENT 'Exterior paint color',
+    fuel_type VARCHAR(30) NOT NULL COMMENT 'Engine fuel system (e.g. Petrol, Diesel, Electric, Hybrid)',
+    transmission VARCHAR(30) NOT NULL COMMENT 'Gearbox type (e.g. Automatic, Manual, CVT)',
+    price DECIMAL(12, 2) NOT NULL COMMENT 'Selling price amount',
+    vin VARCHAR(50) NOT NULL UNIQUE COMMENT 'Unique 17-character Vehicle Identification Number',
+    status VARCHAR(30) NOT NULL DEFAULT 'Available' COMMENT 'Inventory status (Available, Reserved, Sold, In_Maintenance)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was created',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was last updated'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle inventory';
