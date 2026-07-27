@@ -73,3 +73,24 @@ CREATE TABLE IF NOT EXISTS service_bookings (
     CONSTRAINT fk_service_bookings_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_service_bookings_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing vehicle service appointments';
+
+-- =============================================================================
+-- Table: service_records
+-- Description: Stores completed/cancelled vehicle service job logs, labor/parts billing, and assigned technicians.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS service_records (
+    record_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each service record',
+    booking_id INT NOT NULL COMMENT 'Foreign key referencing service_bookings(booking_id)',
+    employee_id INT NOT NULL COMMENT 'Foreign key referencing employees(employee_id) for the servicing technician',
+    work_description TEXT NOT NULL COMMENT 'Detailed breakdown of maintenance/repairs performed',
+    labour_cost DECIMAL(10, 2) NOT NULL COMMENT 'Cost of labor charged for the service work',
+    parts_cost DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Cost of replacement parts used in the service',
+    total_cost DECIMAL(10, 2) NOT NULL COMMENT 'Sum of labor cost and parts cost',
+    completion_date DATE NOT NULL COMMENT 'Date when the service work was completed',
+    service_status ENUM('Completed', 'Cancelled') NOT NULL DEFAULT 'Completed' COMMENT 'Final completion status of the service job',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when service record was created',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when service record was last updated',
+    CONSTRAINT fk_service_records_booking FOREIGN KEY (booking_id) REFERENCES service_bookings(booking_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_service_records_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing completed vehicle service maintenance job logs';
