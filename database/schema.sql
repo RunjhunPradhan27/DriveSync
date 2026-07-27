@@ -130,3 +130,18 @@ CREATE TABLE IF NOT EXISTS inventory (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when inventory record was last updated',
     CONSTRAINT fk_inventory_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle stock inventory';
+
+-- =============================================================================
+-- Table: spare_parts
+-- Description: Stores spare parts catalog, SKU/part numbers, stock quantity, unit prices, and supplier names.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS spare_parts (
+    part_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each spare part',
+    part_name VARCHAR(100) NOT NULL COMMENT 'Name/description of the spare part',
+    part_number VARCHAR(50) NOT NULL UNIQUE COMMENT 'Unique SKU or OEM manufacturer part number',
+    quantity INT NOT NULL DEFAULT 0 COMMENT 'Current available stock quantity',
+    unit_price DECIMAL(10, 2) NOT NULL COMMENT 'Unit price per spare part item',
+    supplier_name VARCHAR(100) NOT NULL COMMENT 'Vendor/supplier brand supplying the part',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when spare part record was last updated'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership spare parts inventory';
