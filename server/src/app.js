@@ -5,6 +5,7 @@ const employeeRoutes = require('./routes/employee.routes');
 const vehicleRoutes = require('./routes/vehicle.routes');
 const serviceBookingRoutes = require('./routes/serviceBooking.routes');
 const serviceRecordRoutes = require('./routes/serviceRecord.routes');
+const salesRoutes = require('./routes/sales.routes');
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/service-bookings', serviceBookingRoutes);
 app.use('/api/service-records', serviceRecordRoutes);
+app.use('/api/sales', salesRoutes);
 
 module.exports = app;

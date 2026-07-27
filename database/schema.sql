@@ -94,3 +94,24 @@ CREATE TABLE IF NOT EXISTS service_records (
     CONSTRAINT fk_service_records_booking FOREIGN KEY (booking_id) REFERENCES service_bookings(booking_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_service_records_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing completed vehicle service maintenance job logs';
+
+-- =============================================================================
+-- Table: sales
+-- Description: Stores completed/pending vehicle sales transactions, pricing, payment methods, and sales rep assignments.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS sales (
+    sale_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each sale transaction',
+    customer_id INT NOT NULL COMMENT 'Foreign key referencing customers(customer_id)',
+    vehicle_id INT NOT NULL COMMENT 'Foreign key referencing vehicles(vehicle_id)',
+    employee_id INT NOT NULL COMMENT 'Foreign key referencing employees(employee_id) for the sales executive',
+    sale_date DATE NOT NULL COMMENT 'Official transaction sale date',
+    sale_price DECIMAL(12, 2) NOT NULL COMMENT 'Final agreed vehicle selling price',
+    payment_method ENUM('Cash', 'Card', 'UPI', 'Bank Transfer', 'Loan') NOT NULL COMMENT 'Payment mode used for the purchase',
+    sale_status ENUM('Pending', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending' COMMENT 'Transaction status (Pending, Completed, Cancelled)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when sale record was created',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when sale record was last updated',
+    CONSTRAINT fk_sales_customer FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_sales_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_sales_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing vehicle sales transaction records';
