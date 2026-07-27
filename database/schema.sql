@@ -115,3 +115,18 @@ CREATE TABLE IF NOT EXISTS sales (
     CONSTRAINT fk_sales_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_sales_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing vehicle sales transaction records';
+
+-- =============================================================================
+-- Table: inventory
+-- Description: Tracks vehicle stock quantity, stock status, and storage warehouse/lot locations.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS inventory (
+    inventory_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each inventory record',
+    vehicle_id INT NOT NULL COMMENT 'Foreign key referencing vehicles(vehicle_id)',
+    quantity INT NOT NULL DEFAULT 0 COMMENT 'Available stock quantity for the vehicle model',
+    stock_status ENUM('In Stock', 'Low Stock', 'Out of Stock') NOT NULL DEFAULT 'In Stock' COMMENT 'Current stock availability level',
+    storage_location VARCHAR(100) NOT NULL COMMENT 'Physical lot, warehouse, or showroom location',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when inventory record was last updated',
+    CONSTRAINT fk_inventory_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle stock inventory';
