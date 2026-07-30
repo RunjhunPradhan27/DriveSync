@@ -145,3 +145,17 @@ CREATE TABLE IF NOT EXISTS spare_parts (
     supplier_name VARCHAR(100) NOT NULL COMMENT 'Vendor/supplier brand supplying the part',
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when spare part record was last updated'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership spare parts inventory';
+
+-- =============================================================================
+-- Table: users
+-- Description: Stores authentication credentials, hashed passwords, roles, and timestamps.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each user account',
+    username VARCHAR(100) NOT NULL COMMENT 'Display name or handle for the user',
+    email VARCHAR(150) NOT NULL UNIQUE COMMENT 'Unique email address used for login and authentication',
+    password VARCHAR(255) NOT NULL COMMENT 'Bcrypt-hashed password string for security',
+    role ENUM('Admin', 'Sales Executive', 'Technician', 'Inventory Manager') NOT NULL COMMENT 'User access control role defining permission scope',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when user account was created'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing user accounts and authentication credentials';

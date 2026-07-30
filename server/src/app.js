@@ -8,6 +8,7 @@ const serviceRecordRoutes = require('./routes/serviceRecord.routes');
 const salesRoutes = require('./routes/sales.routes');
 const inventoryRoutes = require('./routes/inventory.routes');
 const sparePartsRoutes = require('./routes/spareParts.routes');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use('/api/service-records', serviceRecordRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/spare-parts', sparePartsRoutes);
+app.use('/api/auth', authRoutes);
 
 module.exports = app;

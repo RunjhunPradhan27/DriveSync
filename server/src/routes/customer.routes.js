@@ -1,20 +1,21 @@
 const express = require('express');
 const { createCustomer, getAllCustomers } = require('../controllers/customer.controller');
+const { authenticateUser } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
 /**
  * @route   POST /
  * @desc    Creates a new customer profile
- * @access  Public
+ * @access  Private (Authenticated)
  */
-router.post('/', createCustomer);
+router.post('/', authenticateUser, createCustomer);
 
 /**
  * @route   GET /
  * @desc    Retrieves all customer records
- * @access  Public
+ * @access  Private (Authenticated)
  */
-router.get('/', getAllCustomers);
+router.get('/', authenticateUser, getAllCustomers);
 
 module.exports = router;
