@@ -6,8 +6,8 @@ const router = express.Router();
 
 /**
  * @route   POST /
- * @desc    Creates a new customer profile
- * @access  Private (Authenticated)
+ * @desc    Creates a new customer account (Admin-created; users + customers rows created together)
+ * @access  Private (Authenticated) — restricting this to Admin specifically is pending RBAC
  */
 router.post('/', authenticateUser, createCustomer);
 

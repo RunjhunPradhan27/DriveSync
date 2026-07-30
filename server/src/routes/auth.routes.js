@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @route   POST /register
- * @desc    Registers a new user account
+ * @desc    Registers a new Customer account (users + customers rows created together)
  * @access  Public
  */
 router.post('/register', register);

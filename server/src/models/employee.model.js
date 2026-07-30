@@ -7,11 +7,13 @@ const { pool } = require('../config/db');
 const Employee = {
   /**
    * Inserts a new employee record into the employees table.
-   * @param {Object} employeeData - { first_name, last_name, email, phone, designation, department, hire_date, salary }
+   * @param {Object} employeeData - { user_id, first_name, last_name, email, phone, designation, department, hire_date, salary }
+   * @param {Object} [connection=pool] - Active transaction connection, or the pool for standalone use
    * @returns {Promise<Object>} MySQL result object containing insertId, affectedRows, etc.
    */
-  create: async (employeeData) => {
+  create: async (employeeData, connection = pool) => {
     const {
+      user_id,
       first_name,
       last_name,
       email,
@@ -23,11 +25,12 @@ const Employee = {
     } = employeeData;
 
     const query = `
-      INSERT INTO employees (first_name, last_name, email, phone, designation, department, hire_date, salary)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO employees (user_id, first_name, last_name, email, phone, designation, department, hire_date, salary)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] = await pool.execute(query, [
+    const [result] = await connection.execute(query, [
+      user_id ?? null,
       first_name,
       last_name,
       email,

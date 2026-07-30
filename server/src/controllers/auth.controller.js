@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
+const Customer = require('../models/customer.model');
+const { pool } = require('../config/db');
 
 /**
  * Auth Controller
@@ -8,19 +10,25 @@ const User = require('../models/user.model');
  */
 
 /**
- * Handles user account registration.
+ * Handles self-service registration for Customer accounts.
+ * Creates a linked `users` + `customers` row in a single transaction.
+ * Employee-type accounts (Admin, Sales Executive, Technician, Inventory Manager) are
+ * provisioned later through Admin functionality and are never created here.
  * @param {Object} req - Express request object containing registration details in body
  * @param {Object} res - Express response object
  */
 const register = async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
+  let connection;
 
-    // Validate required fields
-    if (!username || !email || !password || !role) {
+  try {
+    const { username, email, password, first_name, last_name, phone, address, city } = req.body;
+
+    // Validate required fields. Note: `role` is intentionally never read from the
+    // request body — self-registration always creates a Customer account.
+    if (!username || !email || !password || !first_name || !last_name || !phone) {
       return res.status(400).json({
         status: 'error',
-        message: 'username, email, password, and role are required fields.'
+        message: 'username, email, password, first_name, last_name, and phone are required fields.'
       });
     }
 
@@ -35,27 +43,55 @@ const register = async (req, res) => {
 
     // Hash password with salt rounds = 10
     const hashedPassword = await bcrypt.hash(password, 10);
+    const role = 'Customer';
 
-    // Insert user into database
-    await User.create({
-      username,
-      email,
-      password: hashedPassword,
-      role
-    });
+    // Create the users row and the linked customers row atomically: if either
+    // insert fails, the whole registration must roll back rather than leaving
+    // an orphaned users row with no matching customer.
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const userResult = await User.create(
+      { username, email, password: hashedPassword, role },
+      connection
+    );
+    const user_id = userResult.insertId;
+
+    await Customer.create(
+      { user_id, first_name, last_name, email, phone, address, city },
+      connection
+    );
+
+    await connection.commit();
+
+    // Generate JWT valid for 1 hour
+    const secretKey = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      { id: user_id, role },
+      secretKey,
+      { expiresIn: '1h' }
+    );
 
     // Return HTTP 201 Created
     return res.status(201).json({
       status: 'success',
-      message: 'User registered successfully'
+      message: 'Customer registered successfully',
+      token
     });
   } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error('Error in register controller:', error.message);
     return res.status(500).json({
       status: 'error',
       message: 'Internal server error during user registration',
       error: error.message
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 

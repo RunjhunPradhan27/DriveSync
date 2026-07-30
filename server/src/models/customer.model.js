@@ -7,16 +7,18 @@ const { pool } = require('../config/db');
 const Customer = {
   /**
    * Inserts a new customer record into the customers table.
-   * @param {Object} customerData - { first_name, last_name, email, phone, address, city }
+   * @param {Object} customerData - { user_id, first_name, last_name, email, phone, address, city }
+   * @param {Object} [connection=pool] - Active transaction connection, or the pool for standalone use
    * @returns {Promise<Object>} MySQL result object containing insertId, affectedRows, etc.
    */
-  create: async (customerData) => {
-    const { first_name, last_name, email, phone, address, city } = customerData;
+  create: async (customerData, connection = pool) => {
+    const { user_id, first_name, last_name, email, phone, address, city } = customerData;
     const query = `
-      INSERT INTO customers (first_name, last_name, email, phone, address, city)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO customers (user_id, first_name, last_name, email, phone, address, city)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    const [result] = await pool.execute(query, [
+    const [result] = await connection.execute(query, [
+      user_id ?? null,
       first_name,
       last_name,
       email,

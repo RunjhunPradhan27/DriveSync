@@ -1,4 +1,7 @@
+const bcrypt = require('bcrypt');
 const Customer = require('../models/customer.model');
+const User = require('../models/user.model');
+const { pool } = require('../config/db');
 
 /**
  * Customer Controller
@@ -7,38 +10,68 @@ const Customer = require('../models/customer.model');
  */
 
 /**
- * Handles creation of a new customer.
- * @param {Object} req - Express request object containing customer details in body
+ * Handles Admin-created customer account creation.
+ * Creates the linked `users` + `customers` rows atomically in a single transaction,
+ * mirroring the self-registration flow in auth.controller.js — the only difference
+ * is that the caller here is an Admin, not the account owner, so no JWT is issued.
+ * @param {Object} req - Express request object containing account + customer details in body
  * @param {Object} res - Express response object
  */
 const createCustomer = async (req, res) => {
+  let connection;
+
   try {
-    const { first_name, last_name, email, phone, address, city } = req.body;
+    const { username, email, password, first_name, last_name, phone, address, city } = req.body;
 
     // Validate required fields
-    if (!first_name || !last_name || !email || !phone) {
+    if (!username || !email || !password || !first_name || !last_name || !phone) {
       return res.status(400).json({
         status: 'error',
-        message: 'first_name, last_name, email, and phone are required fields.'
+        message: 'username, email, password, first_name, last_name, and phone are required fields.'
       });
     }
 
-    // Call Model to perform SQL INSERT operation
-    const result = await Customer.create({
-      first_name,
-      last_name,
-      email,
-      phone,
-      address,
-      city
-    });
+    // Check if user with given email already exists
+    const existingUser = await User.findByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({
+        status: 'error',
+        message: 'User with this email already exists'
+      });
+    }
+
+    // Hash password with salt rounds = 10
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Customer accounts created through this endpoint always get role = 'Customer'
+    const role = 'Customer';
+
+    // Create the users row and the linked customers row atomically: if either
+    // insert fails, the whole operation must roll back rather than leaving an
+    // orphaned users row with no matching customer.
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    const userResult = await User.create(
+      { username, email, password: hashedPassword, role },
+      connection
+    );
+    const user_id = userResult.insertId;
+
+    const customerResult = await Customer.create(
+      { user_id, first_name, last_name, email, phone, address, city },
+      connection
+    );
+
+    await connection.commit();
 
     // Send HTTP 201 Created response
     return res.status(201).json({
       status: 'success',
       message: 'Customer created successfully',
       data: {
-        customer_id: result.insertId,
+        customer_id: customerResult.insertId,
+        user_id,
         first_name,
         last_name,
         email,
@@ -48,12 +81,19 @@ const createCustomer = async (req, res) => {
       }
     });
   } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error('Error in createCustomer controller:', error.message);
     return res.status(500).json({
       status: 'error',
       message: 'Internal server error while creating customer',
       error: error.message
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
 

@@ -8,9 +8,10 @@ const User = {
   /**
    * Inserts a new user record into the database.
    * @param {Object} userData - { username, email, password, role }
+   * @param {Object} [connection=pool] - Active transaction connection, or the pool for standalone use
    * @returns {Promise<Object>} MySQL result object containing insertId, affectedRows, etc.
    */
-  create: async (userData) => {
+  create: async (userData, connection = pool) => {
     const { username, email, password, role } = userData;
 
     const query = `
@@ -18,7 +19,7 @@ const User = {
       VALUES (?, ?, ?, ?)
     `;
 
-    const [result] = await pool.execute(query, [username, email, password, role]);
+    const [result] = await connection.execute(query, [username, email, password, role]);
     return result;
   },
 

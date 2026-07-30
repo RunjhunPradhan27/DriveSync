@@ -1,11 +1,26 @@
 -- =============================================================================
 -- DriveSync Database Schema
+-- Table: users
+-- Description: Stores authentication credentials, hashed passwords, roles, and timestamps.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each user account',
+    username VARCHAR(100) NOT NULL COMMENT 'Display name or handle for the user',
+    email VARCHAR(150) NOT NULL UNIQUE COMMENT 'Unique email address used for login and authentication',
+    password VARCHAR(255) NOT NULL COMMENT 'Bcrypt-hashed password string for security',
+    role ENUM('Admin', 'Sales Executive', 'Technician', 'Inventory Manager', 'Customer') NOT NULL COMMENT 'User access control role defining permission scope',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when user account was created'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing user accounts and authentication credentials';
+
+-- =============================================================================
 -- Table: customers
 -- Description: Stores customer profiles, contact information, and audit timestamps.
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS customers (
     customer_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each customer',
+    user_id INT NOT NULL UNIQUE COMMENT 'Optional foreign key referencing users(user_id) for customer account authentication',
     first_name VARCHAR(50) NOT NULL COMMENT 'Customer given name',
     last_name VARCHAR(50) NOT NULL COMMENT 'Customer surname/family name',
     email VARCHAR(255) NOT NULL UNIQUE COMMENT 'Unique contact email address used for communication',
@@ -13,7 +28,8 @@ CREATE TABLE IF NOT EXISTS customers (
     address TEXT NULL COMMENT 'Full postal residential/business address',
     city VARCHAR(100) NULL COMMENT 'City of residence',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when customer record was created',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when customer record was last updated'
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when customer record was last updated',
+    CONSTRAINT fk_customers_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership customer records';
 
 -- =============================================================================
@@ -23,6 +39,7 @@ CREATE TABLE IF NOT EXISTS customers (
 
 CREATE TABLE IF NOT EXISTS employees (
     employee_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each employee',
+    user_id INT NOT NULL UNIQUE COMMENT 'Optional foreign key referencing users(user_id) for employee account authentication',
     first_name VARCHAR(50) NOT NULL COMMENT 'Employee given name',
     last_name VARCHAR(50) NOT NULL COMMENT 'Employee surname/family name',
     email VARCHAR(255) NOT NULL UNIQUE COMMENT 'Unique official email address for staff member',
@@ -32,7 +49,8 @@ CREATE TABLE IF NOT EXISTS employees (
     hire_date DATE NOT NULL COMMENT 'Official date of employment joining',
     salary DECIMAL(10, 2) NOT NULL COMMENT 'Monthly/Annual compensation amount',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when employee record was created',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when employee record was last updated'
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when employee record was last updated',
+    CONSTRAINT fk_employees_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership staff records';
 
 -- =============================================================================
@@ -54,6 +72,36 @@ CREATE TABLE IF NOT EXISTS vehicles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was created',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when vehicle record was last updated'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle inventory';
+
+-- =============================================================================
+-- Table: inventory
+-- Description: Tracks vehicle stock quantity, stock status, and storage warehouse/lot locations.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS inventory (
+    inventory_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each inventory record',
+    vehicle_id INT NOT NULL COMMENT 'Foreign key referencing vehicles(vehicle_id)',
+    quantity INT NOT NULL DEFAULT 0 COMMENT 'Available stock quantity for the vehicle model',
+    stock_status ENUM('In Stock', 'Low Stock', 'Out of Stock') NOT NULL DEFAULT 'In Stock' COMMENT 'Current stock availability level',
+    storage_location VARCHAR(100) NOT NULL COMMENT 'Physical lot, warehouse, or showroom location',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when inventory record was last updated',
+    CONSTRAINT fk_inventory_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle stock inventory';
+
+-- =============================================================================
+-- Table: spare_parts
+-- Description: Stores spare parts catalog, SKU/part numbers, stock quantity, unit prices, and supplier names.
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS spare_parts (
+    part_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each spare part',
+    part_name VARCHAR(100) NOT NULL COMMENT 'Name/description of the spare part',
+    part_number VARCHAR(50) NOT NULL UNIQUE COMMENT 'Unique SKU or OEM manufacturer part number',
+    quantity INT NOT NULL DEFAULT 0 COMMENT 'Current available stock quantity',
+    unit_price DECIMAL(10, 2) NOT NULL COMMENT 'Unit price per spare part item',
+    supplier_name VARCHAR(100) NOT NULL COMMENT 'Vendor/supplier brand supplying the part',
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when spare part record was last updated'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership spare parts inventory';
 
 -- =============================================================================
 -- Table: service_bookings
@@ -115,47 +163,3 @@ CREATE TABLE IF NOT EXISTS sales (
     CONSTRAINT fk_sales_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_sales_employee FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing vehicle sales transaction records';
-
--- =============================================================================
--- Table: inventory
--- Description: Tracks vehicle stock quantity, stock status, and storage warehouse/lot locations.
--- =============================================================================
-
-CREATE TABLE IF NOT EXISTS inventory (
-    inventory_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each inventory record',
-    vehicle_id INT NOT NULL COMMENT 'Foreign key referencing vehicles(vehicle_id)',
-    quantity INT NOT NULL DEFAULT 0 COMMENT 'Available stock quantity for the vehicle model',
-    stock_status ENUM('In Stock', 'Low Stock', 'Out of Stock') NOT NULL DEFAULT 'In Stock' COMMENT 'Current stock availability level',
-    storage_location VARCHAR(100) NOT NULL COMMENT 'Physical lot, warehouse, or showroom location',
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when inventory record was last updated',
-    CONSTRAINT fk_inventory_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership vehicle stock inventory';
-
--- =============================================================================
--- Table: spare_parts
--- Description: Stores spare parts catalog, SKU/part numbers, stock quantity, unit prices, and supplier names.
--- =============================================================================
-
-CREATE TABLE IF NOT EXISTS spare_parts (
-    part_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each spare part',
-    part_name VARCHAR(100) NOT NULL COMMENT 'Name/description of the spare part',
-    part_number VARCHAR(50) NOT NULL UNIQUE COMMENT 'Unique SKU or OEM manufacturer part number',
-    quantity INT NOT NULL DEFAULT 0 COMMENT 'Current available stock quantity',
-    unit_price DECIMAL(10, 2) NOT NULL COMMENT 'Unit price per spare part item',
-    supplier_name VARCHAR(100) NOT NULL COMMENT 'Vendor/supplier brand supplying the part',
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp when spare part record was last updated'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing dealership spare parts inventory';
-
--- =============================================================================
--- Table: users
--- Description: Stores authentication credentials, hashed passwords, roles, and timestamps.
--- =============================================================================
-
-CREATE TABLE IF NOT EXISTS users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Unique auto-incremented identifier for each user account',
-    username VARCHAR(100) NOT NULL COMMENT 'Display name or handle for the user',
-    email VARCHAR(150) NOT NULL UNIQUE COMMENT 'Unique email address used for login and authentication',
-    password VARCHAR(255) NOT NULL COMMENT 'Bcrypt-hashed password string for security',
-    role ENUM('Admin', 'Sales Executive', 'Technician', 'Inventory Manager') NOT NULL COMMENT 'User access control role defining permission scope',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when user account was created'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table storing user accounts and authentication credentials';
