@@ -1,14 +1,16 @@
 const express = require('express');
 const { createVehicle, getAllVehicles } = require('../controllers/vehicle.controller');
+const { authenticateUser } = require('../middleware/auth.middleware');
+const { authorize } = require('../middleware/authorize.middleware');
 
 const router = express.Router();
 
 /**
  * @route   POST /
  * @desc    Creates a new vehicle record in inventory
- * @access  Public
+ * @access  Private (Admin, Inventory Manager)
  */
-router.post('/', createVehicle);
+router.post('/', authenticateUser, authorize('Admin', 'Inventory Manager'), createVehicle);
 
 /**
  * @route   GET /
