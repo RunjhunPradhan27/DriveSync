@@ -13,6 +13,10 @@ import CustomerListPage from './pages/CustomerListPage.jsx';
 import CustomerDetailsPage from './pages/CustomerDetailsPage.jsx';
 import AddCustomerPage from './pages/AddCustomerPage.jsx';
 import EditCustomerPage from './pages/EditCustomerPage.jsx';
+import SalesListPage from './pages/SalesListPage.jsx';
+import SaleDetailsPage from './pages/SaleDetailsPage.jsx';
+import CreateSalePage from './pages/CreateSalePage.jsx';
+import EditSalePage from './pages/EditSalePage.jsx';
 
 function App() {
   return (
@@ -40,6 +44,11 @@ function App() {
             <Route path="/customers/new" element={<AddCustomerPage />} />
             <Route path="/customers/:id" element={<CustomerDetailsPage />} />
             <Route path="/customers/:id/edit" element={<EditCustomerPage />} />
+
+            <Route path="/sales" element={<SalesListPage />} />
+            <Route path="/sales/new" element={<CreateSalePage />} />
+            <Route path="/sales/:id" element={<SaleDetailsPage />} />
+            <Route path="/sales/:id/edit" element={<EditSalePage />} />
           </Route>
         </Route>
       </Routes>
