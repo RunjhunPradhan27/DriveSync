@@ -17,6 +17,10 @@ import SalesListPage from './pages/SalesListPage.jsx';
 import SaleDetailsPage from './pages/SaleDetailsPage.jsx';
 import CreateSalePage from './pages/CreateSalePage.jsx';
 import EditSalePage from './pages/EditSalePage.jsx';
+import InventoryListPage from './pages/InventoryListPage.jsx';
+import InventoryDetailsPage from './pages/InventoryDetailsPage.jsx';
+import CreateInventoryPage from './pages/CreateInventoryPage.jsx';
+import EditInventoryPage from './pages/EditInventoryPage.jsx';
 
 function App() {
   return (
@@ -49,6 +53,13 @@ function App() {
             <Route path="/sales/new" element={<CreateSalePage />} />
             <Route path="/sales/:id" element={<SaleDetailsPage />} />
             <Route path="/sales/:id/edit" element={<EditSalePage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Inventory Manager']} />}>
+            <Route path="/inventory" element={<InventoryListPage />} />
+            <Route path="/inventory/new" element={<CreateInventoryPage />} />
+            <Route path="/inventory/:id" element={<InventoryDetailsPage />} />
+            <Route path="/inventory/:id/edit" element={<EditInventoryPage />} />
           </Route>
         </Route>
       </Routes>

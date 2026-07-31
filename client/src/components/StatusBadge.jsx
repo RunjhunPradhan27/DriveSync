@@ -2,7 +2,10 @@ const STATUS_STYLES = {
   Available: 'bg-green-100 text-green-800',
   Reserved: 'bg-yellow-100 text-yellow-800',
   Sold: 'bg-gray-200 text-gray-700',
-  In_Maintenance: 'bg-red-100 text-red-800'
+  In_Maintenance: 'bg-red-100 text-red-800',
+  'In Stock': 'bg-green-100 text-green-800',
+  'Low Stock': 'bg-yellow-100 text-yellow-800',
+  'Out of Stock': 'bg-red-100 text-red-800'
 };
 
 const StatusBadge = ({ status }) => {
