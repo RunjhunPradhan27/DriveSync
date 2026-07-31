@@ -9,6 +9,10 @@ import LoginPage from './pages/LoginPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import AdminAreaPage from './pages/AdminAreaPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import CustomerListPage from './pages/CustomerListPage.jsx';
+import CustomerDetailsPage from './pages/CustomerDetailsPage.jsx';
+import AddCustomerPage from './pages/AddCustomerPage.jsx';
+import EditCustomerPage from './pages/EditCustomerPage.jsx';
 
 function App() {
   return (
@@ -29,6 +33,13 @@ function App() {
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
             <Route path="/admin" element={<AdminAreaPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Sales Executive']} />}>
+            <Route path="/customers" element={<CustomerListPage />} />
+            <Route path="/customers/new" element={<AddCustomerPage />} />
+            <Route path="/customers/:id" element={<CustomerDetailsPage />} />
+            <Route path="/customers/:id/edit" element={<EditCustomerPage />} />
           </Route>
         </Route>
       </Routes>

@@ -17,6 +17,9 @@ const MainLayout = () => {
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="hover:text-gray-900">Dashboard</Link>
+                {(user.role === 'Admin' || user.role === 'Sales Executive') && (
+                  <Link to="/customers" className="hover:text-gray-900">Customers</Link>
+                )}
                 {user.role === 'Admin' && (
                   <Link to="/admin" className="hover:text-gray-900">Admin</Link>
                 )}
