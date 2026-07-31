@@ -54,6 +54,49 @@ const ServiceRecord = {
 
     const [rows] = await pool.query(query);
     return rows;
+  },
+
+  /**
+   * Fetches a single service record by record_id.
+   * @param {number} record_id
+   * @returns {Promise<Object|null>} Service record row, or null if not found.
+   */
+  findById: async (record_id) => {
+    const query = `
+      SELECT record_id, booking_id, employee_id, work_description, labour_cost, parts_cost, total_cost, completion_date, service_status, created_at, updated_at
+      FROM service_records
+      WHERE record_id = ?
+    `;
+    const [rows] = await pool.query(query, [record_id]);
+    return rows.length > 0 ? rows[0] : null;
+  },
+
+  /**
+   * Partially updates a service record. Only columns present in `updates`
+   * are written; the caller is responsible for whitelisting allowed fields.
+   * @param {number} record_id
+   * @param {Object} updates - Plain object of column: value pairs to update
+   * @returns {Promise<Object>} MySQL result object containing affectedRows, etc.
+   */
+  update: async (record_id, updates) => {
+    const fields = Object.keys(updates);
+    const setClause = fields.map((field) => `${field} = ?`).join(', ');
+    const values = fields.map((field) => updates[field]);
+
+    const query = `UPDATE service_records SET ${setClause} WHERE record_id = ?`;
+    const [result] = await pool.execute(query, [...values, record_id]);
+    return result;
+  },
+
+  /**
+   * Deletes a service record by record_id.
+   * @param {number} record_id
+   * @returns {Promise<Object>} MySQL result object containing affectedRows, etc.
+   */
+  delete: async (record_id) => {
+    const query = `DELETE FROM service_records WHERE record_id = ?`;
+    const [result] = await pool.execute(query, [record_id]);
+    return result;
   }
 };
 

@@ -41,6 +41,39 @@ const Customer = {
     `;
     const [rows] = await pool.query(query);
     return rows;
+  },
+
+  /**
+   * Fetches a single customer record by customer_id. Includes user_id so
+   * callers (e.g. deleteCustomer) can act on the linked users row.
+   * @param {number} customer_id
+   * @returns {Promise<Object|null>} Customer row, or null if not found.
+   */
+  findById: async (customer_id) => {
+    const query = `
+      SELECT customer_id, user_id, first_name, last_name, email, phone, address, city, created_at, updated_at
+      FROM customers
+      WHERE customer_id = ?
+    `;
+    const [rows] = await pool.query(query, [customer_id]);
+    return rows.length > 0 ? rows[0] : null;
+  },
+
+  /**
+   * Partially updates a customer record. Only columns present in `updates`
+   * are written; the caller is responsible for whitelisting allowed fields.
+   * @param {number} customer_id
+   * @param {Object} updates - Plain object of column: value pairs to update
+   * @returns {Promise<Object>} MySQL result object containing affectedRows, etc.
+   */
+  update: async (customer_id, updates) => {
+    const fields = Object.keys(updates);
+    const setClause = fields.map((field) => `${field} = ?`).join(', ');
+    const values = fields.map((field) => updates[field]);
+
+    const query = `UPDATE customers SET ${setClause} WHERE customer_id = ?`;
+    const [result] = await pool.execute(query, [...values, customer_id]);
+    return result;
   }
 };
 

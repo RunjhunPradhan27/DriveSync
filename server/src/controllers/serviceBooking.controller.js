@@ -90,7 +90,130 @@ const getAllServiceBookings = async (req, res) => {
   }
 };
 
+/**
+ * Handles fetching a single service booking by booking_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getServiceBookingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await ServiceBooking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service booking not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: booking
+    });
+  } catch (error) {
+    console.error('Error in getServiceBookingById controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while fetching service booking',
+      error: error.message
+    });
+  }
+};
+
+const SERVICE_BOOKING_UPDATABLE_FIELDS = [
+  'customer_id', 'vehicle_id', 'service_date', 'service_type', 'service_status', 'remarks'
+];
+
+/**
+ * Partially updates a service booking record. Only fields present in the
+ * request body are changed.
+ * @param {Object} req - Express request object containing fields to update in body
+ * @param {Object} res - Express response object
+ */
+const updateServiceBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updates = {};
+    SERVICE_BOOKING_UPDATABLE_FIELDS.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: `At least one of the following fields must be provided: ${SERVICE_BOOKING_UPDATABLE_FIELDS.join(', ')}`
+      });
+    }
+
+    const result = await ServiceBooking.update(id, updates);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service booking not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Service booking updated successfully',
+      data: { booking_id: Number(id), ...updates }
+    });
+  } catch (error) {
+    console.error('Error in updateServiceBooking controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while updating service booking',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Deletes a service booking by booking_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteServiceBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await ServiceBooking.delete(id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service booking not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Service booking deleted successfully'
+    });
+  } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(409).json({
+        status: 'error',
+        message: 'Cannot delete this service booking because it has an existing service record.'
+      });
+    }
+    console.error('Error in deleteServiceBooking controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while deleting service booking',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createServiceBooking,
-  getAllServiceBookings
+  getAllServiceBookings,
+  getServiceBookingById,
+  updateServiceBooking,
+  deleteServiceBooking
 };

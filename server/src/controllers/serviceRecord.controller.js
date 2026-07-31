@@ -105,7 +105,130 @@ const getAllServiceRecords = async (req, res) => {
   }
 };
 
+/**
+ * Handles fetching a single service record by record_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getServiceRecordById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const record = await ServiceRecord.findById(id);
+
+    if (!record) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service record not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: record
+    });
+  } catch (error) {
+    console.error('Error in getServiceRecordById controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while fetching service record',
+      error: error.message
+    });
+  }
+};
+
+const SERVICE_RECORD_UPDATABLE_FIELDS = [
+  'booking_id', 'employee_id', 'work_description', 'labour_cost', 'parts_cost', 'total_cost', 'completion_date', 'service_status'
+];
+
+/**
+ * Partially updates a service record. Only fields present in the request
+ * body are changed.
+ * @param {Object} req - Express request object containing fields to update in body
+ * @param {Object} res - Express response object
+ */
+const updateServiceRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updates = {};
+    SERVICE_RECORD_UPDATABLE_FIELDS.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: `At least one of the following fields must be provided: ${SERVICE_RECORD_UPDATABLE_FIELDS.join(', ')}`
+      });
+    }
+
+    const result = await ServiceRecord.update(id, updates);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service record not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Service record updated successfully',
+      data: { record_id: Number(id), ...updates }
+    });
+  } catch (error) {
+    console.error('Error in updateServiceRecord controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while updating service record',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Deletes a service record by record_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteServiceRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await ServiceRecord.delete(id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Service record not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Service record deleted successfully'
+    });
+  } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(409).json({
+        status: 'error',
+        message: 'Cannot delete this service record because it is referenced by other records.'
+      });
+    }
+    console.error('Error in deleteServiceRecord controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while deleting service record',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createServiceRecord,
-  getAllServiceRecords
+  getAllServiceRecords,
+  getServiceRecordById,
+  updateServiceRecord,
+  deleteServiceRecord
 };

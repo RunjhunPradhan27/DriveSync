@@ -36,6 +36,20 @@ const User = {
 
     const [rows] = await pool.execute(query, [email]);
     return rows.length > 0 ? rows[0] : null;
+  },
+
+  /**
+   * Deletes a user record by user_id. Because customers/employees hold a
+   * NOT NULL UNIQUE FK to users with ON DELETE CASCADE, deleting the users
+   * row is the correct way to remove a customer/employee account without
+   * ever leaving an orphaned profile row behind.
+   * @param {number} user_id - Primary key of the user to delete
+   * @returns {Promise<Object>} MySQL result object containing affectedRows, etc.
+   */
+  deleteById: async (user_id) => {
+    const query = `DELETE FROM users WHERE user_id = ?`;
+    const [result] = await pool.execute(query, [user_id]);
+    return result;
   }
 };
 

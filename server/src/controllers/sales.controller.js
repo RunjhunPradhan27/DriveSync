@@ -101,7 +101,130 @@ const getAllSales = async (req, res) => {
   }
 };
 
+/**
+ * Handles fetching a single sale by sale_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getSaleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sale = await Sales.findById(id);
+
+    if (!sale) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Sale not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: sale
+    });
+  } catch (error) {
+    console.error('Error in getSaleById controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while fetching sale',
+      error: error.message
+    });
+  }
+};
+
+const SALE_UPDATABLE_FIELDS = [
+  'customer_id', 'vehicle_id', 'employee_id', 'sale_date', 'sale_price', 'payment_method', 'sale_status'
+];
+
+/**
+ * Partially updates a sale record. Only fields present in the request body
+ * are changed.
+ * @param {Object} req - Express request object containing fields to update in body
+ * @param {Object} res - Express response object
+ */
+const updateSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updates = {};
+    SALE_UPDATABLE_FIELDS.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: `At least one of the following fields must be provided: ${SALE_UPDATABLE_FIELDS.join(', ')}`
+      });
+    }
+
+    const result = await Sales.update(id, updates);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Sale not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Sale updated successfully',
+      data: { sale_id: Number(id), ...updates }
+    });
+  } catch (error) {
+    console.error('Error in updateSale controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while updating sale',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Deletes a sale by sale_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await Sales.delete(id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Sale not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Sale deleted successfully'
+    });
+  } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(409).json({
+        status: 'error',
+        message: 'Cannot delete this sale because it is referenced by other records.'
+      });
+    }
+    console.error('Error in deleteSale controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while deleting sale',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createSale,
-  getAllSales
+  getAllSales,
+  getSaleById,
+  updateSale,
+  deleteSale
 };

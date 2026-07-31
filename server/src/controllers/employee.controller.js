@@ -160,7 +160,145 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
+/**
+ * Handles fetching a single employee by employee_id.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getEmployeeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Employee not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: employee
+    });
+  } catch (error) {
+    console.error('Error in getEmployeeById controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while fetching employee',
+      error: error.message
+    });
+  }
+};
+
+// Profile fields updatable via PUT. Deliberately excludes email/role/user_id:
+// email is shared with the linked users row at creation time, role is an
+// RBAC-relevant account concern rather than a profile field, and user_id
+// must never be reassigned.
+const EMPLOYEE_UPDATABLE_FIELDS = [
+  'first_name',
+  'last_name',
+  'phone',
+  'designation',
+  'department',
+  'hire_date',
+  'salary'
+];
+
+/**
+ * Partially updates an employee's profile. Only fields present in the
+ * request body are changed.
+ * @param {Object} req - Express request object containing fields to update in body
+ * @param {Object} res - Express response object
+ */
+const updateEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updates = {};
+    EMPLOYEE_UPDATABLE_FIELDS.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: `At least one of the following fields must be provided: ${EMPLOYEE_UPDATABLE_FIELDS.join(', ')}`
+      });
+    }
+
+    const result = await Employee.update(id, updates);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Employee not found'
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Employee updated successfully',
+      data: { employee_id: Number(id), ...updates }
+    });
+  } catch (error) {
+    console.error('Error in updateEmployee controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while updating employee',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Deletes an employee by removing the linked users row (which cascades to
+ * remove the employees row), so no orphaned login is ever left behind.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const employee = await Employee.findById(id);
+    if (!employee) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Employee not found'
+      });
+    }
+
+    await User.deleteById(employee.user_id);
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Employee deleted successfully'
+    });
+  } catch (error) {
+    // A RESTRICT foreign key (e.g. existing sales or service records tied to
+    // this employee) blocks the delete — surface it as a clear 409, not a generic 500.
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(409).json({
+        status: 'error',
+        message: 'Cannot delete this employee because they have existing sales or service records referencing them.'
+      });
+    }
+    console.error('Error in deleteEmployee controller:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error while deleting employee',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createEmployee,
-  getAllEmployees
+  getAllEmployees,
+  getEmployeeById,
+  updateEmployee,
+  deleteEmployee
 };
