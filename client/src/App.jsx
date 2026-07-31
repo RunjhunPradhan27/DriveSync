@@ -8,6 +8,7 @@ import VehicleDetailsPage from './pages/VehicleDetailsPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import AdminAreaPage from './pages/AdminAreaPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/account" element={<AccountPage />} />
           </Route>
 

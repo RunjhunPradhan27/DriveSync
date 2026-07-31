@@ -11,7 +11,7 @@ const PublicOnlyRoute = () => {
   const location = useLocation();
 
   if (isAuthenticated) {
-    const redirectTo = location.state?.from?.pathname || '/';
+    const redirectTo = location.state?.from?.pathname || '/dashboard';
     return <Navigate to={redirectTo} replace />;
   }
 
