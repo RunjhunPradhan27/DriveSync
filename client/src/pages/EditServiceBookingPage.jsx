@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import ServiceBookingForm from '../components/ServiceBookingForm.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
 import { getServiceBookingById, updateServiceBooking } from '../services/serviceBooking.service.js';
 
 const EditServiceBookingPage = () => {
@@ -37,18 +39,20 @@ const EditServiceBookingPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to={`/service-bookings/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service booking
+    <div className="max-w-lg">
+      <Link to={`/service-bookings/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service booking
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Service Booking</h1>
-      <ServiceBookingForm
-        initialValues={{ ...booking, service_date: String(booking.service_date).slice(0, 10), remarks: booking.remarks || '' }}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-        serverError={serverError}
-        submitLabel="Save Changes"
-      />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Edit Service Booking</h1>
+      <Card>
+        <ServiceBookingForm
+          initialValues={{ ...booking, service_date: String(booking.service_date).slice(0, 10), remarks: booking.remarks || '' }}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          serverError={serverError}
+          submitLabel="Save Changes"
+        />
+      </Card>
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import InventoryForm from '../components/InventoryForm.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
 import { getInventoryById, updateInventory } from '../services/inventory.service.js';
 
 const EditInventoryPage = () => {
@@ -37,18 +39,20 @@ const EditInventoryPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to={`/inventory/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to inventory record
+    <div className="max-w-lg">
+      <Link to={`/inventory/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to inventory record
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Inventory Record</h1>
-      <InventoryForm
-        initialValues={record}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-        serverError={serverError}
-        submitLabel="Save Changes"
-      />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Edit Inventory Record</h1>
+      <Card>
+        <InventoryForm
+          initialValues={record}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          serverError={serverError}
+          submitLabel="Save Changes"
+        />
+      </Card>
     </div>
   );
 };

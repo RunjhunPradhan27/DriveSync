@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Hash, Layers, IndianRupee, Truck, Clock } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
 import { getSparePartById, deleteSparePart } from '../services/spareParts.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 
 const SparePartDetailsPage = () => {
@@ -44,58 +49,35 @@ const SparePartDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/spare-parts" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to spare parts
+      <Link to="/spare-parts" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to spare parts
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">{part.part_name}</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{part.part_name}</h1>
           {canManage && (
             <div className="flex gap-2">
-              <Link
-                to={`/spare-parts/${id}/edit`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
+              <LinkButton to={`/spare-parts/${id}/edit`} variant="secondary" size="sm">
                 Edit
-              </Link>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-              >
+              </LinkButton>
+              <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
                 {deleting ? 'Deleting…' : 'Delete'}
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Part Number</dt>
-            <dd className="font-medium text-gray-900">{part.part_number}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Quantity</dt>
-            <dd className="font-medium text-gray-900">{part.quantity}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Unit Price</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(part.unit_price)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Supplier</dt>
-            <dd className="font-medium text-gray-900">{part.supplier_name}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Last Updated</dt>
-            <dd className="font-medium text-gray-900">{String(part.last_updated).slice(0, 10)}</dd>
-          </div>
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField icon={Hash} label="Part Number" value={part.part_number} mono />
+          <DetailField icon={Layers} label="Quantity" value={part.quantity} />
+          <DetailField icon={IndianRupee} label="Unit Price" value={formatCurrency(part.unit_price)} />
+          <DetailField icon={Truck} label="Supplier" value={part.supplier_name} />
+          <DetailField icon={Clock} label="Last Updated" value={String(part.last_updated).slice(0, 10)} />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

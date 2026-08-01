@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 
 /**
@@ -18,8 +19,9 @@ const ProtectedRoute = ({ allowedRoles }) => {
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return (
-      <div className="rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 text-sm">
-        You do not have permission to view this page.
+      <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-sm text-amber-800">
+        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+        <span>You do not have permission to view this page.</span>
       </div>
     );
   }

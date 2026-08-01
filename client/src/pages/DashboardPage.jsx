@@ -1,4 +1,6 @@
+import { LayoutDashboard } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
+import EmptyState from '../components/ui/EmptyState.jsx';
 import AdminDashboard from './dashboards/AdminDashboard.jsx';
 import SalesExecutiveDashboard from './dashboards/SalesExecutiveDashboard.jsx';
 import InventoryManagerDashboard from './dashboards/InventoryManagerDashboard.jsx';
@@ -21,7 +23,13 @@ const DashboardPage = () => {
   const RoleDashboard = DASHBOARD_BY_ROLE[user.role];
 
   if (!RoleDashboard) {
-    return <p className="text-gray-500">No dashboard is configured for your role yet.</p>;
+    return (
+      <EmptyState
+        icon={LayoutDashboard}
+        title="No dashboard configured"
+        description="A dashboard for your role isn't available yet."
+      />
+    );
   }
 
   return <RoleDashboard />;

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import SparePartForm from '../components/SparePartForm.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
 import { getSparePartById, updateSparePart } from '../services/spareParts.service.js';
 
 const EditSparePartPage = () => {
@@ -37,18 +39,20 @@ const EditSparePartPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to={`/spare-parts/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to spare part
+    <div className="max-w-lg">
+      <Link to={`/spare-parts/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to spare part
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Spare Part</h1>
-      <SparePartForm
-        initialValues={part}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-        serverError={serverError}
-        submitLabel="Save Changes"
-      />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Edit Spare Part</h1>
+      <Card>
+        <SparePartForm
+          initialValues={part}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          serverError={serverError}
+          submitLabel="Save Changes"
+        />
+      </Card>
     </div>
   );
 };

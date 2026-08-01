@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Mail, Phone, Briefcase, Building2, Calendar, IndianRupee } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getEmployeeById, deleteEmployee } from '../services/employee.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 
 const EmployeeDetailsPage = () => {
@@ -42,62 +47,36 @@ const EmployeeDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/employees" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to employees
+      <Link to="/employees" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to employees
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
             {employee.first_name} {employee.last_name}
           </h1>
           <div className="flex gap-2">
-            <Link
-              to={`/employees/${id}/edit`}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <LinkButton to={`/employees/${id}/edit`} variant="secondary" size="sm">
               Edit
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-            >
+            </LinkButton>
+            <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
-            </button>
+            </Button>
           </div>
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Email</dt>
-            <dd className="font-medium text-gray-900">{employee.email}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Phone</dt>
-            <dd className="font-medium text-gray-900">{employee.phone}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Designation</dt>
-            <dd className="font-medium text-gray-900">{employee.designation}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Department</dt>
-            <dd className="font-medium text-gray-900">{employee.department}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Hire Date</dt>
-            <dd className="font-medium text-gray-900">{String(employee.hire_date).slice(0, 10)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Salary</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(employee.salary)}</dd>
-          </div>
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField icon={Mail} label="Email" value={employee.email} />
+          <DetailField icon={Phone} label="Phone" value={employee.phone} />
+          <DetailField icon={Briefcase} label="Designation" value={employee.designation} />
+          <DetailField icon={Building2} label="Department" value={employee.department} />
+          <DetailField icon={Calendar} label="Hire Date" value={String(employee.hire_date).slice(0, 10)} />
+          <DetailField icon={IndianRupee} label="Salary" value={formatCurrency(employee.salary)} />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

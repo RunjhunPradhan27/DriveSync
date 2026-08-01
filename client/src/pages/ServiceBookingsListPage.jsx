@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CalendarClock, Pencil } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllServiceBookings } from '../services/serviceBooking.service.js';
 import { getAllCustomers } from '../services/customer.service.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
@@ -9,6 +11,13 @@ import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { buildCustomerNameMap, buildVehicleNameMap } from '../utils/entityMaps.js';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const ServiceBookingsListPage = () => {
   const { user } = useAuth();
@@ -47,81 +56,73 @@ const ServiceBookingsListPage = () => {
     );
   }, [enrichedBookings, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredBookings, 10);
+
   if (bookings.loading || customers.loading || vehicles.loading) return <Loader />;
   if (bookings.error) return <ErrorBanner message="Unable to load service bookings right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Service Bookings</h1>
-        {canManage && (
-          <Link
-            to="/service-bookings/new"
-            className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-          >
-            Create Booking
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        icon={CalendarClock}
+        title="Service Bookings"
+        description="Scheduled and completed service appointments"
+        actions={canManage && <LinkButton to="/service-bookings/new">Create Booking</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by customer, vehicle, service type, or status"
-        className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!bookings.data || bookings.data.length === 0) && (
-        <p className="text-gray-500">
-          No service bookings yet.{canManage ? ' Click "Create Booking" to add one.' : ''}
-        </p>
+        <EmptyState icon={CalendarClock} title="No service bookings yet" description={canManage ? 'Click "Create Booking" to add one.' : undefined} />
       )}
 
       {bookings.data && bookings.data.length > 0 && filteredBookings.length === 0 && (
-        <p className="text-gray-500">No service bookings match your search.</p>
+        <EmptyState icon={CalendarClock} title="No service bookings match your search" />
       )}
 
-      {filteredBookings.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Customer</th>
-                <th className="px-4 py-3 font-medium">Vehicle</th>
-                <th className="px-4 py-3 font-medium">Service Date</th>
-                <th className="px-4 py-3 font-medium">Service Type</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                {canManage && <th className="px-4 py-3 font-medium">Actions</th>}
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Customer</th>
+              <th className={thClass}>Vehicle</th>
+              <th className={thClass}>Service Date</th>
+              <th className={thClass}>Service Type</th>
+              <th className={thClass}>Status</th>
+              {canManage && <th className={thClass}>Actions</th>}
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((booking) => (
+              <tr key={booking.booking_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/service-bookings/${booking.booking_id}`} className="hover:text-indigo-600">
+                    {booking.customerName}
+                  </Link>
+                </td>
+                <td className={tdClass}>{booking.vehicleName}</td>
+                <td className={tdClass}>{String(booking.service_date).slice(0, 10)}</td>
+                <td className={tdClass}>{booking.service_type}</td>
+                <td className={tdClass}>
+                  <StatusBadge status={booking.service_status} />
+                </td>
+                {canManage && (
+                  <td className={tdClass}>
+                    <IconLinkButton to={`/service-bookings/${booking.booking_id}/edit`} icon={Pencil} label="Edit service booking" />
+                  </td>
+                )}
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredBookings.map((booking) => (
-                <tr key={booking.booking_id}>
-                  <td className="px-4 py-3">
-                    <Link to={`/service-bookings/${booking.booking_id}`} className="font-medium text-gray-900 hover:underline">
-                      {booking.customerName}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{booking.vehicleName}</td>
-                  <td className="px-4 py-3 text-gray-700">{String(booking.service_date).slice(0, 10)}</td>
-                  <td className="px-4 py-3 text-gray-700">{booking.service_type}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={booking.service_status} />
-                  </td>
-                  {canManage && (
-                    <td className="px-4 py-3">
-                      <Link to={`/service-bookings/${booking.booking_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                        Edit
-                      </Link>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

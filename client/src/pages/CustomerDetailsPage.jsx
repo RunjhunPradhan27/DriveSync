@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Mail, Phone, MapPin, Building2 } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getCustomerById, deleteCustomer } from '../services/customer.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 
 const CustomerDetailsPage = () => {
   const { id } = useParams();
@@ -43,54 +48,34 @@ const CustomerDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/customers" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to customers
+      <Link to="/customers" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to customers
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
             {customer.first_name} {customer.last_name}
           </h1>
           <div className="flex gap-2">
-            <Link
-              to={`/customers/${id}/edit`}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <LinkButton to={`/customers/${id}/edit`} variant="secondary" size="sm">
               Edit
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-            >
+            </LinkButton>
+            <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
-            </button>
+            </Button>
           </div>
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Email</dt>
-            <dd className="font-medium text-gray-900">{customer.email}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Phone</dt>
-            <dd className="font-medium text-gray-900">{customer.phone}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Address</dt>
-            <dd className="font-medium text-gray-900">{customer.address || '—'}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">City</dt>
-            <dd className="font-medium text-gray-900">{customer.city || '—'}</dd>
-          </div>
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField icon={Mail} label="Email" value={customer.email} />
+          <DetailField icon={Phone} label="Phone" value={customer.phone} />
+          <DetailField icon={MapPin} label="Address" value={customer.address || '—'} />
+          <DetailField icon={Building2} label="City" value={customer.city || '—'} />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

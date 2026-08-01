@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Calendar, Wrench, MessageSquare } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getAllCustomers } from '../services/customer.service.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
 import Loader from './Loader.jsx';
+import Button from './ui/Button.jsx';
 
 const SERVICE_STATUSES = ['Pending', 'In_Progress', 'Completed', 'Cancelled'];
 
@@ -98,23 +100,27 @@ const ServiceBookingForm = ({ initialValues, onSubmit, submitting, serverError, 
         ))}
       </SelectField>
 
-      <FormField
-        label="Service Date"
-        id="service_date"
-        type="date"
-        value={values.service_date}
-        onChange={handleChange('service_date')}
-        error={errors.service_date}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          label="Service Date"
+          id="service_date"
+          type="date"
+          icon={Calendar}
+          value={values.service_date}
+          onChange={handleChange('service_date')}
+          error={errors.service_date}
+        />
 
-      <FormField
-        label="Service Type"
-        id="service_type"
-        placeholder="e.g. Oil Change, Brake Inspection"
-        value={values.service_type}
-        onChange={handleChange('service_type')}
-        error={errors.service_type}
-      />
+        <FormField
+          label="Service Type"
+          id="service_type"
+          icon={Wrench}
+          placeholder="e.g. Oil Change, Brake Inspection"
+          value={values.service_type}
+          onChange={handleChange('service_type')}
+          error={errors.service_type}
+        />
+      </div>
 
       <SelectField
         label="Service Status"
@@ -131,19 +137,16 @@ const ServiceBookingForm = ({ initialValues, onSubmit, submitting, serverError, 
       <FormField
         label="Remarks (optional)"
         id="remarks"
+        icon={MessageSquare}
         value={values.remarks}
         onChange={handleChange('remarks')}
       />
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

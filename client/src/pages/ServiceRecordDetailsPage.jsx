@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, CalendarClock, UserCog, FileText, IndianRupee, Calendar, Activity } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getServiceRecordById, deleteServiceRecord } from '../services/serviceRecord.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 
 const ServiceRecordDetailsPage = () => {
@@ -41,75 +46,47 @@ const ServiceRecordDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/service-records" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service records
+      <Link to="/service-records" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service records
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">Record #{record.record_id}</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Record #{record.record_id}</h1>
           <div className="flex gap-2">
-            <Link
-              to={`/service-records/${id}/edit`}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <LinkButton to={`/service-records/${id}/edit`} variant="secondary" size="sm">
               Edit
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-            >
+            </LinkButton>
+            <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
-            </button>
+            </Button>
           </div>
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Service Booking</dt>
-            <dd>
-              <Link to={`/service-bookings/${record.booking_id}`} className="font-medium text-gray-900 hover:underline">
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField
+            icon={CalendarClock}
+            label="Service Booking"
+            value={
+              <Link to={`/service-bookings/${record.booking_id}`} className="hover:text-indigo-600 hover:underline">
                 View Booking #{record.booking_id}
               </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Technician</dt>
-            {/* No employee-details page exists yet, so unlike the booking
-                link this is always plain text, matching how SaleDetailsPage
-                shows employee_id without a link. */}
-            <dd className="font-medium text-gray-900">Employee #{record.employee_id}</dd>
-          </div>
-          <div className="col-span-2">
-            <dt className="text-gray-500">Work Description</dt>
-            <dd className="font-medium text-gray-900">{record.work_description}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Labour Cost</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(record.labour_cost)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Parts Cost</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(record.parts_cost)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Total Cost</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(record.total_cost)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Completion Date</dt>
-            <dd className="font-medium text-gray-900">{String(record.completion_date).slice(0, 10)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Status</dt>
-            <dd><StatusBadge status={record.service_status} /></dd>
-          </div>
+            }
+          />
+          {/* No employee-details page exists yet, so unlike the booking
+              link this is always plain text, matching how SaleDetailsPage
+              shows employee_id without a link. */}
+          <DetailField icon={UserCog} label="Technician" value={`Employee #${record.employee_id}`} />
+          <DetailField icon={FileText} label="Work Description" value={record.work_description} className="sm:col-span-2" />
+          <DetailField icon={IndianRupee} label="Labour Cost" value={formatCurrency(record.labour_cost)} />
+          <DetailField icon={IndianRupee} label="Parts Cost" value={formatCurrency(record.parts_cost)} />
+          <DetailField icon={IndianRupee} label="Total Cost" value={formatCurrency(record.total_cost)} />
+          <DetailField icon={Calendar} label="Completion Date" value={String(record.completion_date).slice(0, 10)} />
+          <DetailField icon={Activity} label="Status" value={<StatusBadge status={record.service_status} />} />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

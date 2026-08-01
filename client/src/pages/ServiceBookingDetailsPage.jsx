@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, User, Car, Calendar, Wrench, Activity, MessageSquare } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
 import { getServiceBookingById, deleteServiceBooking } from '../services/serviceBooking.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 
 const ServiceBookingDetailsPage = () => {
   const { id } = useParams();
@@ -44,77 +49,59 @@ const ServiceBookingDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/service-bookings" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service bookings
+      <Link to="/service-bookings" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service bookings
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">Booking #{booking.booking_id}</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Booking #{booking.booking_id}</h1>
           {canManage && (
             <div className="flex gap-2">
-              <Link
-                to={`/service-bookings/${id}/edit`}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
+              <LinkButton to={`/service-bookings/${id}/edit`} variant="secondary" size="sm">
                 Edit
-              </Link>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-              >
+              </LinkButton>
+              <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
                 {deleting ? 'Deleting…' : 'Delete'}
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Customer</dt>
-            <dd>
-              {/* /customers/:id is Admin/Sales-Executive-only, so a Technician
-                  viewing this page would hit a permission wall — show plain
-                  text instead of a dead-end link for that role. */}
-              {canManage ? (
-                <Link to={`/customers/${booking.customer_id}`} className="font-medium text-gray-900 hover:underline">
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField
+            icon={User}
+            label="Customer"
+            // /customers/:id is Admin/Sales-Executive-only, so a Technician
+            // viewing this page would hit a permission wall — show plain
+            // text instead of a dead-end link for that role.
+            value={
+              canManage ? (
+                <Link to={`/customers/${booking.customer_id}`} className="hover:text-indigo-600 hover:underline">
                   View Customer #{booking.customer_id}
                 </Link>
               ) : (
-                <span className="font-medium text-gray-900">Customer #{booking.customer_id}</span>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Vehicle</dt>
-            <dd>
-              <Link to={`/vehicles/${booking.vehicle_id}`} className="font-medium text-gray-900 hover:underline">
+                `Customer #${booking.customer_id}`
+              )
+            }
+          />
+          <DetailField
+            icon={Car}
+            label="Vehicle"
+            value={
+              <Link to={`/vehicles/${booking.vehicle_id}`} className="hover:text-indigo-600 hover:underline">
                 View Vehicle #{booking.vehicle_id}
               </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Service Date</dt>
-            <dd className="font-medium text-gray-900">{String(booking.service_date).slice(0, 10)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Service Type</dt>
-            <dd className="font-medium text-gray-900">{booking.service_type}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Status</dt>
-            <dd><StatusBadge status={booking.service_status} /></dd>
-          </div>
-          <div className="col-span-2">
-            <dt className="text-gray-500">Remarks</dt>
-            <dd className="font-medium text-gray-900">{booking.remarks || '—'}</dd>
-          </div>
+            }
+          />
+          <DetailField icon={Calendar} label="Service Date" value={String(booking.service_date).slice(0, 10)} />
+          <DetailField icon={Wrench} label="Service Type" value={booking.service_type} />
+          <DetailField icon={Activity} label="Status" value={<StatusBadge status={booking.service_status} />} />
+          <DetailField icon={MessageSquare} label="Remarks" value={booking.remarks || '—'} className="sm:col-span-2" />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

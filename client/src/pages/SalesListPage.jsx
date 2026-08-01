@@ -1,15 +1,25 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Receipt, Pencil } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllSales } from '../services/sales.service.js';
 import { getAllCustomers } from '../services/customer.service.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
 import { getAllEmployees } from '../services/employee.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import StatusBadge from '../components/StatusBadge.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { buildCustomerNameMap, buildVehicleNameMap, buildEmployeeNameMap } from '../utils/entityMaps.js';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const SalesListPage = () => {
   const { user } = useAuth();
@@ -50,73 +60,71 @@ const SalesListPage = () => {
     );
   }, [enrichedSales, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredSales, 10);
+
   if (sales.loading || customers.loading || vehicles.loading) return <Loader />;
   if (sales.error) return <ErrorBanner message="Unable to load sales right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sales</h1>
-        <Link
-          to="/sales/new"
-          className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-        >
-          Create Sale
-        </Link>
-      </div>
+      <PageHeader
+        icon={Receipt}
+        title="Sales"
+        description="All vehicle sale transactions"
+        actions={<LinkButton to="/sales/new">Create Sale</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by customer, vehicle, payment method, or status"
-        className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!sales.data || sales.data.length === 0) && (
-        <p className="text-gray-500">No sales recorded yet. Click "Create Sale" to add one.</p>
+        <EmptyState icon={Receipt} title="No sales recorded yet" description='Click "Create Sale" to add one.' />
       )}
 
       {sales.data && sales.data.length > 0 && filteredSales.length === 0 && (
-        <p className="text-gray-500">No sales match your search.</p>
+        <EmptyState icon={Receipt} title="No sales match your search" />
       )}
 
-      {filteredSales.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Customer</th>
-                <th className="px-4 py-3 font-medium">Vehicle</th>
-                <th className="px-4 py-3 font-medium">Sale Price</th>
-                <th className="px-4 py-3 font-medium">Payment</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Customer</th>
+              <th className={thClass}>Vehicle</th>
+              <th className={thClass}>Sale Price</th>
+              <th className={thClass}>Payment</th>
+              <th className={thClass}>Status</th>
+              <th className={thClass}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((sale) => (
+              <tr key={sale.sale_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/sales/${sale.sale_id}`} className="hover:text-indigo-600">
+                    {sale.customerName}
+                  </Link>
+                </td>
+                <td className={tdClass}>{sale.vehicleName}</td>
+                <td className={tdClass}>{formatCurrency(sale.sale_price)}</td>
+                <td className={tdClass}>{sale.payment_method}</td>
+                <td className={tdClass}>
+                  <StatusBadge status={sale.sale_status} />
+                </td>
+                <td className={tdClass}>
+                  <IconLinkButton to={`/sales/${sale.sale_id}/edit`} icon={Pencil} label="Edit sale" />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredSales.map((sale) => (
-                <tr key={sale.sale_id}>
-                  <td className="px-4 py-3">
-                    <Link to={`/sales/${sale.sale_id}`} className="font-medium text-gray-900 hover:underline">
-                      {sale.customerName}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{sale.vehicleName}</td>
-                  <td className="px-4 py-3 text-gray-700">{formatCurrency(sale.sale_price)}</td>
-                  <td className="px-4 py-3 text-gray-700">{sale.payment_method}</td>
-                  <td className="px-4 py-3 text-gray-700">{sale.sale_status}</td>
-                  <td className="px-4 py-3">
-                    <Link to={`/sales/${sale.sale_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

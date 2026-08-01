@@ -1,9 +1,18 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Users, Pencil } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllCustomers } from '../services/customer.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const CustomerListPage = () => {
   const { data: customers, loading, error } = useFetch(getAllCustomers, []);
@@ -23,74 +32,67 @@ const CustomerListPage = () => {
     );
   }, [customers, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredCustomers, 10);
+
   if (loading) return <Loader />;
   if (error) return <ErrorBanner message="Unable to load customers right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-        <Link
-          to="/customers/new"
-          className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-        >
-          Add Customer
-        </Link>
-      </div>
+      <PageHeader
+        icon={Users}
+        title="Customers"
+        description="Everyone registered with the dealership"
+        actions={<LinkButton to="/customers/new">Add Customer</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by name, email, or phone"
-        className="w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!customers || customers.length === 0) && (
-        <p className="text-gray-500">No customers yet. Click "Add Customer" to create one.</p>
+        <EmptyState icon={Users} title="No customers yet" description='Click "Add Customer" to create one.' />
       )}
 
       {customers && customers.length > 0 && filteredCustomers.length === 0 && (
-        <p className="text-gray-500">No customers match your search.</p>
+        <EmptyState icon={Users} title="No customers match your search" />
       )}
 
-      {filteredCustomers.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Phone</th>
-                <th className="px-4 py-3 font-medium">City</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Name</th>
+              <th className={thClass}>Email</th>
+              <th className={thClass}>Phone</th>
+              <th className={thClass}>City</th>
+              <th className={thClass}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((customer) => (
+              <tr key={customer.customer_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/customers/${customer.customer_id}`} className="hover:text-indigo-600">
+                    {customer.first_name} {customer.last_name}
+                  </Link>
+                </td>
+                <td className={tdClass}>{customer.email}</td>
+                <td className={tdClass}>{customer.phone}</td>
+                <td className={tdClass}>{customer.city || '—'}</td>
+                <td className={tdClass}>
+                  <IconLinkButton to={`/customers/${customer.customer_id}/edit`} icon={Pencil} label="Edit customer" />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredCustomers.map((customer) => (
-                <tr key={customer.customer_id}>
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/customers/${customer.customer_id}`}
-                      className="font-medium text-gray-900 hover:underline"
-                    >
-                      {customer.first_name} {customer.last_name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{customer.email}</td>
-                  <td className="px-4 py-3 text-gray-700">{customer.phone}</td>
-                  <td className="px-4 py-3 text-gray-700">{customer.city || '—'}</td>
-                  <td className="px-4 py-3">
-                    <Link to={`/customers/${customer.customer_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

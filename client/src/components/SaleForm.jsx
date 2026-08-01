@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Calendar, IndianRupee } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
 import { getAllCustomers } from '../services/customer.service.js';
@@ -7,6 +8,7 @@ import { getAllEmployees } from '../services/employee.service.js';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
 import Loader from './Loader.jsx';
+import Button from './ui/Button.jsx';
 
 const PAYMENT_METHODS = ['Cash', 'Card', 'UPI', 'Bank Transfer', 'Loan'];
 const SALE_STATUSES = ['Pending', 'Completed', 'Cancelled'];
@@ -136,25 +138,29 @@ const SaleForm = ({ initialValues, onSubmit, submitting, serverError, submitLabe
         />
       )}
 
-      <FormField
-        label="Sale Date"
-        id="sale_date"
-        type="date"
-        value={values.sale_date}
-        onChange={handleChange('sale_date')}
-        error={errors.sale_date}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          label="Sale Date"
+          id="sale_date"
+          type="date"
+          icon={Calendar}
+          value={values.sale_date}
+          onChange={handleChange('sale_date')}
+          error={errors.sale_date}
+        />
 
-      <FormField
-        label="Sale Price"
-        id="sale_price"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.sale_price}
-        onChange={handleChange('sale_price')}
-        error={errors.sale_price}
-      />
+        <FormField
+          label="Sale Price"
+          id="sale_price"
+          type="number"
+          step="0.01"
+          min="0"
+          icon={IndianRupee}
+          value={values.sale_price}
+          onChange={handleChange('sale_price')}
+          error={errors.sale_price}
+        />
+      </div>
 
       <SelectField
         label="Payment Method"
@@ -182,13 +188,9 @@ const SaleForm = ({ initialValues, onSubmit, submitting, serverError, submitLabe
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

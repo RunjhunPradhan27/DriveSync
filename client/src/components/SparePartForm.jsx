@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Tag, Hash, Layers, IndianRupee, Truck } from 'lucide-react';
 import FormField from './FormField.jsx';
+import Button from './ui/Button.jsx';
 
 /**
  * Shared form for creating and editing a spare part. The backend allows the
@@ -53,46 +55,55 @@ const SparePartForm = ({ initialValues, onSubmit, submitting, serverError, submi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      <FormField
-        label="Part Name"
-        id="part_name"
-        value={values.part_name}
-        onChange={handleChange('part_name')}
-        error={errors.part_name}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          label="Part Name"
+          id="part_name"
+          icon={Tag}
+          value={values.part_name}
+          onChange={handleChange('part_name')}
+          error={errors.part_name}
+        />
 
-      <FormField
-        label="Part Number"
-        id="part_number"
-        value={values.part_number}
-        onChange={handleChange('part_number')}
-        error={errors.part_number}
-      />
+        <FormField
+          label="Part Number"
+          id="part_number"
+          icon={Hash}
+          value={values.part_number}
+          onChange={handleChange('part_number')}
+          error={errors.part_number}
+        />
+      </div>
 
-      <FormField
-        label="Quantity"
-        id="quantity"
-        type="number"
-        min="0"
-        value={values.quantity}
-        onChange={handleChange('quantity')}
-        error={errors.quantity}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          label="Quantity"
+          id="quantity"
+          type="number"
+          min="0"
+          icon={Layers}
+          value={values.quantity}
+          onChange={handleChange('quantity')}
+          error={errors.quantity}
+        />
 
-      <FormField
-        label="Unit Price"
-        id="unit_price"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.unit_price}
-        onChange={handleChange('unit_price')}
-        error={errors.unit_price}
-      />
+        <FormField
+          label="Unit Price"
+          id="unit_price"
+          type="number"
+          step="0.01"
+          min="0"
+          icon={IndianRupee}
+          value={values.unit_price}
+          onChange={handleChange('unit_price')}
+          error={errors.unit_price}
+        />
+      </div>
 
       <FormField
         label="Supplier Name"
         id="supplier_name"
+        icon={Truck}
         value={values.supplier_name}
         onChange={handleChange('supplier_name')}
         error={errors.supplier_name}
@@ -100,13 +111,9 @@ const SparePartForm = ({ initialValues, onSubmit, submitting, serverError, submi
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, User, Car, UserCog, Calendar, IndianRupee, CreditCard, Activity } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getSaleById, deleteSale } from '../services/sales.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import StatusBadge from '../components/StatusBadge.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import DetailField from '../components/ui/DetailField.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 
 const SaleDetailsPage = () => {
@@ -40,72 +46,51 @@ const SaleDetailsPage = () => {
 
   return (
     <div className="max-w-2xl">
-      <Link to="/sales" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to sales
+      <Link to="/sales" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to sales
       </Link>
 
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-6">
+      <Card className="mt-4">
         <div className="flex items-start justify-between gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">Sale #{sale.sale_id}</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Sale #{sale.sale_id}</h1>
           <div className="flex gap-2">
-            <Link
-              to={`/sales/${id}/edit`}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+            <LinkButton to={`/sales/${id}/edit`} variant="secondary" size="sm">
               Edit
-            </Link>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-            >
+            </LinkButton>
+            <Button variant="danger" size="sm" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete'}
-            </button>
+            </Button>
           </div>
         </div>
 
         {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <dt className="text-gray-500">Customer</dt>
-            <dd>
-              <Link to={`/customers/${sale.customer_id}`} className="font-medium text-gray-900 hover:underline">
+        <dl className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2">
+          <DetailField
+            icon={User}
+            label="Customer"
+            value={
+              <Link to={`/customers/${sale.customer_id}`} className="hover:text-indigo-600 hover:underline">
                 View Customer #{sale.customer_id}
               </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Vehicle</dt>
-            <dd>
-              <Link to={`/vehicles/${sale.vehicle_id}`} className="font-medium text-gray-900 hover:underline">
+            }
+          />
+          <DetailField
+            icon={Car}
+            label="Vehicle"
+            value={
+              <Link to={`/vehicles/${sale.vehicle_id}`} className="hover:text-indigo-600 hover:underline">
                 View Vehicle #{sale.vehicle_id}
               </Link>
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Employee</dt>
-            <dd className="font-medium text-gray-900">Employee #{sale.employee_id}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Sale Date</dt>
-            <dd className="font-medium text-gray-900">{String(sale.sale_date).slice(0, 10)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Sale Price</dt>
-            <dd className="font-medium text-gray-900">{formatCurrency(sale.sale_price)}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Payment Method</dt>
-            <dd className="font-medium text-gray-900">{sale.payment_method}</dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">Status</dt>
-            <dd className="font-medium text-gray-900">{sale.sale_status}</dd>
-          </div>
+            }
+          />
+          <DetailField icon={UserCog} label="Employee" value={`Employee #${sale.employee_id}`} />
+          <DetailField icon={Calendar} label="Sale Date" value={String(sale.sale_date).slice(0, 10)} />
+          <DetailField icon={IndianRupee} label="Sale Price" value={formatCurrency(sale.sale_price)} />
+          <DetailField icon={CreditCard} label="Payment Method" value={sale.payment_method} />
+          <DetailField icon={Activity} label="Status" value={<StatusBadge status={sale.sale_status} />} />
         </dl>
-      </div>
+      </Card>
     </div>
   );
 };

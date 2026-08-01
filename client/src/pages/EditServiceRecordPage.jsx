@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import ServiceRecordForm from '../components/ServiceRecordForm.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
 import { getServiceRecordById, updateServiceRecord } from '../services/serviceRecord.service.js';
 
 const EditServiceRecordPage = () => {
@@ -37,18 +39,20 @@ const EditServiceRecordPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to={`/service-records/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service record
+    <div className="max-w-lg">
+      <Link to={`/service-records/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service record
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Service Record</h1>
-      <ServiceRecordForm
-        initialValues={{ ...record, completion_date: String(record.completion_date).slice(0, 10) }}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-        serverError={serverError}
-        submitLabel="Save Changes"
-      />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Edit Service Record</h1>
+      <Card>
+        <ServiceRecordForm
+          initialValues={{ ...record, completion_date: String(record.completion_date).slice(0, 10) }}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          serverError={serverError}
+          submitLabel="Save Changes"
+        />
+      </Card>
     </div>
   );
 };

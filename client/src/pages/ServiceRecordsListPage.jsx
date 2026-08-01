@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ClipboardList, Pencil } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllServiceRecords } from '../services/serviceRecord.service.js';
 import { getAllServiceBookings } from '../services/serviceBooking.service.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
@@ -11,6 +13,13 @@ import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { buildVehicleNameMap, buildEmployeeNameMap } from '../utils/entityMaps.js';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const ServiceRecordsListPage = () => {
   const { user } = useAuth();
@@ -56,77 +65,73 @@ const ServiceRecordsListPage = () => {
     );
   }, [enrichedRecords, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredRecords, 10);
+
   if (records.loading || bookings.loading || vehicles.loading) return <Loader />;
   if (records.error) return <ErrorBanner message="Unable to load service records right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Service Records</h1>
-        <Link
-          to="/service-records/new"
-          className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-        >
-          Create Record
-        </Link>
-      </div>
+      <PageHeader
+        icon={ClipboardList}
+        title="Service Records"
+        description="Completed and cancelled service work"
+        actions={<LinkButton to="/service-records/new">Create Record</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by booking, technician, work description, or status"
-        className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!records.data || records.data.length === 0) && (
-        <p className="text-gray-500">No service records yet. Click "Create Record" to add one.</p>
+        <EmptyState icon={ClipboardList} title="No service records yet" description='Click "Create Record" to add one.' />
       )}
 
       {records.data && records.data.length > 0 && filteredRecords.length === 0 && (
-        <p className="text-gray-500">No service records match your search.</p>
+        <EmptyState icon={ClipboardList} title="No service records match your search" />
       )}
 
-      {filteredRecords.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Booking</th>
-                <th className="px-4 py-3 font-medium">Technician</th>
-                <th className="px-4 py-3 font-medium">Work Description</th>
-                <th className="px-4 py-3 font-medium">Total Cost</th>
-                <th className="px-4 py-3 font-medium">Completion Date</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Booking</th>
+              <th className={thClass}>Technician</th>
+              <th className={thClass}>Work Description</th>
+              <th className={thClass}>Total Cost</th>
+              <th className={thClass}>Completion Date</th>
+              <th className={thClass}>Status</th>
+              <th className={thClass}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((record) => (
+              <tr key={record.record_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/service-records/${record.record_id}`} className="hover:text-indigo-600">
+                    {record.bookingSummary}
+                  </Link>
+                </td>
+                <td className={tdClass}>{record.employeeName}</td>
+                <td className={tdClass}>{record.work_description}</td>
+                <td className={tdClass}>{formatCurrency(record.total_cost)}</td>
+                <td className={tdClass}>{String(record.completion_date).slice(0, 10)}</td>
+                <td className={tdClass}>
+                  <StatusBadge status={record.service_status} />
+                </td>
+                <td className={tdClass}>
+                  <IconLinkButton to={`/service-records/${record.record_id}/edit`} icon={Pencil} label="Edit service record" />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredRecords.map((record) => (
-                <tr key={record.record_id}>
-                  <td className="px-4 py-3">
-                    <Link to={`/service-records/${record.record_id}`} className="font-medium text-gray-900 hover:underline">
-                      {record.bookingSummary}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{record.employeeName}</td>
-                  <td className="px-4 py-3 text-gray-700">{record.work_description}</td>
-                  <td className="px-4 py-3 text-gray-700">{formatCurrency(record.total_cost)}</td>
-                  <td className="px-4 py-3 text-gray-700">{String(record.completion_date).slice(0, 10)}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={record.service_status} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link to={`/service-records/${record.record_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

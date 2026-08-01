@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import SaleForm from '../components/SaleForm.jsx';
+import Card from '../components/ui/Card.jsx';
 import { createSale } from '../services/sales.service.js';
 
 const CreateSalePage = () => {
@@ -23,12 +25,14 @@ const CreateSalePage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to="/sales" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to sales
+    <div className="max-w-lg">
+      <Link to="/sales" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to sales
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Create Sale</h1>
-      <SaleForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Sale" />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Create Sale</h1>
+      <Card>
+        <SaleForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Sale" />
+      </Card>
     </div>
   );
 };

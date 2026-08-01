@@ -1,11 +1,20 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Package, Pencil } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllSpareParts } from '../services/spareParts.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import { formatCurrency } from '../utils/formatters.js';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const SparePartsListPage = () => {
   const { user } = useAuth();
@@ -26,79 +35,71 @@ const SparePartsListPage = () => {
     );
   }, [spareParts.data, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredParts, 10);
+
   if (spareParts.loading) return <Loader />;
   if (spareParts.error) return <ErrorBanner message="Unable to load spare parts right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Spare Parts</h1>
-        {canManage && (
-          <Link
-            to="/spare-parts/new"
-            className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-          >
-            Add Spare Part
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        icon={Package}
+        title="Spare Parts"
+        description="Catalog of replacement parts and suppliers"
+        actions={canManage && <LinkButton to="/spare-parts/new">Add Spare Part</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by part name, part number, or supplier"
-        className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!spareParts.data || spareParts.data.length === 0) && (
-        <p className="text-gray-500">
-          No spare parts yet.{canManage ? ' Click "Add Spare Part" to create one.' : ''}
-        </p>
+        <EmptyState icon={Package} title="No spare parts yet" description={canManage ? 'Click "Add Spare Part" to create one.' : undefined} />
       )}
 
       {spareParts.data && spareParts.data.length > 0 && filteredParts.length === 0 && (
-        <p className="text-gray-500">No spare parts match your search.</p>
+        <EmptyState icon={Package} title="No spare parts match your search" />
       )}
 
-      {filteredParts.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Part Name</th>
-                <th className="px-4 py-3 font-medium">Part Number</th>
-                <th className="px-4 py-3 font-medium">Quantity</th>
-                <th className="px-4 py-3 font-medium">Unit Price</th>
-                <th className="px-4 py-3 font-medium">Supplier</th>
-                {canManage && <th className="px-4 py-3 font-medium">Actions</th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredParts.map((part) => (
-                <tr key={part.part_id}>
-                  <td className="px-4 py-3">
-                    <Link to={`/spare-parts/${part.part_id}`} className="font-medium text-gray-900 hover:underline">
-                      {part.part_name}
-                    </Link>
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Part Name</th>
+              <th className={thClass}>Part Number</th>
+              <th className={thClass}>Quantity</th>
+              <th className={thClass}>Unit Price</th>
+              <th className={thClass}>Supplier</th>
+              {canManage && <th className={thClass}>Actions</th>}
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((part) => (
+              <tr key={part.part_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/spare-parts/${part.part_id}`} className="hover:text-indigo-600">
+                    {part.part_name}
+                  </Link>
+                </td>
+                <td className={tdClass}>{part.part_number}</td>
+                <td className={tdClass}>{part.quantity}</td>
+                <td className={tdClass}>{formatCurrency(part.unit_price)}</td>
+                <td className={tdClass}>{part.supplier_name}</td>
+                {canManage && (
+                  <td className={tdClass}>
+                    <IconLinkButton to={`/spare-parts/${part.part_id}/edit`} icon={Pencil} label="Edit spare part" />
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{part.part_number}</td>
-                  <td className="px-4 py-3 text-gray-700">{part.quantity}</td>
-                  <td className="px-4 py-3 text-gray-700">{formatCurrency(part.unit_price)}</td>
-                  <td className="px-4 py-3 text-gray-700">{part.supplier_name}</td>
-                  {canManage && (
-                    <td className="px-4 py-3">
-                      <Link to={`/spare-parts/${part.part_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                        Edit
-                      </Link>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

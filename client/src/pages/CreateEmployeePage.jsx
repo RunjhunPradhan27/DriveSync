@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import EmployeeForm from '../components/EmployeeForm.jsx';
+import Card from '../components/ui/Card.jsx';
 import { createEmployee } from '../services/employee.service.js';
 
 const CreateEmployeePage = () => {
@@ -23,12 +25,14 @@ const CreateEmployeePage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to="/employees" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to employees
+    <div className="max-w-lg">
+      <Link to="/employees" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to employees
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Add Employee</h1>
-      <EmployeeForm mode="create" onSubmit={handleSubmit} submitting={submitting} serverError={serverError} />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Add Employee</h1>
+      <Card>
+        <EmployeeForm mode="create" onSubmit={handleSubmit} submitting={submitting} serverError={serverError} />
+      </Card>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { AtSign, Mail, Lock, User, Phone, Briefcase, Building2, Calendar, IndianRupee } from 'lucide-react';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
+import Button from './ui/Button.jsx';
 import { EMAIL_PATTERN } from '../utils/validators.js';
 
 // Roles an Admin may assign when provisioning an employee account — mirrors
@@ -82,9 +84,9 @@ const EmployeeForm = ({ mode, initialValues, onSubmit, submitting, serverError }
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {mode === 'create' && (
         <>
-          <FormField label="Username" id="username" value={values.username} onChange={handleChange('username')} error={errors.username} />
-          <FormField label="Email" id="email" type="email" value={values.email} onChange={handleChange('email')} error={errors.email} />
-          <FormField label="Password" id="password" type="password" value={values.password} onChange={handleChange('password')} error={errors.password} />
+          <FormField label="Username" id="username" icon={AtSign} value={values.username} onChange={handleChange('username')} error={errors.username} />
+          <FormField label="Email" id="email" type="email" icon={Mail} value={values.email} onChange={handleChange('email')} error={errors.email} />
+          <FormField label="Password" id="password" type="password" icon={Lock} value={values.password} onChange={handleChange('password')} error={errors.password} />
           <SelectField label="Role" id="role" value={values.role} onChange={handleChange('role')} error={errors.role}>
             <option value="">Select a role</option>
             {ALLOWED_EMPLOYEE_ROLES.map((role) => (
@@ -94,23 +96,28 @@ const EmployeeForm = ({ mode, initialValues, onSubmit, submitting, serverError }
         </>
       )}
 
-      <FormField label="First Name" id="first_name" value={values.first_name} onChange={handleChange('first_name')} error={errors.first_name} />
-      <FormField label="Last Name" id="last_name" value={values.last_name} onChange={handleChange('last_name')} error={errors.last_name} />
-      <FormField label="Phone" id="phone" value={values.phone} onChange={handleChange('phone')} error={errors.phone} />
-      <FormField label="Designation" id="designation" value={values.designation} onChange={handleChange('designation')} error={errors.designation} />
-      <FormField label="Department" id="department" value={values.department} onChange={handleChange('department')} error={errors.department} />
-      <FormField label="Hire Date" id="hire_date" type="date" value={values.hire_date} onChange={handleChange('hire_date')} error={errors.hire_date} />
-      <FormField label="Salary" id="salary" type="number" step="0.01" min="0" value={values.salary} onChange={handleChange('salary')} error={errors.salary} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField label="First Name" id="first_name" icon={User} value={values.first_name} onChange={handleChange('first_name')} error={errors.first_name} />
+        <FormField label="Last Name" id="last_name" icon={User} value={values.last_name} onChange={handleChange('last_name')} error={errors.last_name} />
+      </div>
+
+      <FormField label="Phone" id="phone" icon={Phone} value={values.phone} onChange={handleChange('phone')} error={errors.phone} />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField label="Designation" id="designation" icon={Briefcase} value={values.designation} onChange={handleChange('designation')} error={errors.designation} />
+        <FormField label="Department" id="department" icon={Building2} value={values.department} onChange={handleChange('department')} error={errors.department} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField label="Hire Date" id="hire_date" type="date" icon={Calendar} value={values.hire_date} onChange={handleChange('hire_date')} error={errors.hire_date} />
+        <FormField label="Salary" id="salary" type="number" step="0.01" min="0" icon={IndianRupee} value={values.salary} onChange={handleChange('salary')} error={errors.salary} />
+      </div>
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : mode === 'create' ? 'Add Employee' : 'Save Changes'}
-      </button>
+      </Button>
     </form>
   );
 };

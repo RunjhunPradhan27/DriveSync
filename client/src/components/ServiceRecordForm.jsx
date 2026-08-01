@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { FileText, IndianRupee, Calendar } from 'lucide-react';
 import useAuth from '../hooks/useAuth.js';
 import useFetch from '../hooks/useFetch.js';
 import { getAllServiceBookings } from '../services/serviceBooking.service.js';
@@ -7,6 +8,7 @@ import { getAllEmployees } from '../services/employee.service.js';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
 import Loader from './Loader.jsx';
+import Button from './ui/Button.jsx';
 import { buildVehicleNameMap } from '../utils/entityMaps.js';
 
 const SERVICE_RECORD_STATUSES = ['Completed', 'Cancelled'];
@@ -135,48 +137,55 @@ const ServiceRecordForm = ({ initialValues, onSubmit, submitting, serverError, s
       <FormField
         label="Work Description"
         id="work_description"
+        icon={FileText}
         value={values.work_description}
         onChange={handleChange('work_description')}
         error={errors.work_description}
       />
 
-      <FormField
-        label="Labour Cost"
-        id="labour_cost"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.labour_cost}
-        onChange={handleChange('labour_cost')}
-        error={errors.labour_cost}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <FormField
+          label="Labour Cost"
+          id="labour_cost"
+          type="number"
+          step="0.01"
+          min="0"
+          icon={IndianRupee}
+          value={values.labour_cost}
+          onChange={handleChange('labour_cost')}
+          error={errors.labour_cost}
+        />
 
-      <FormField
-        label="Parts Cost"
-        id="parts_cost"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.parts_cost}
-        onChange={handleChange('parts_cost')}
-        error={errors.parts_cost}
-      />
+        <FormField
+          label="Parts Cost"
+          id="parts_cost"
+          type="number"
+          step="0.01"
+          min="0"
+          icon={IndianRupee}
+          value={values.parts_cost}
+          onChange={handleChange('parts_cost')}
+          error={errors.parts_cost}
+        />
 
-      <FormField
-        label="Total Cost"
-        id="total_cost"
-        type="number"
-        step="0.01"
-        min="0"
-        value={values.total_cost}
-        onChange={handleChange('total_cost')}
-        error={errors.total_cost}
-      />
+        <FormField
+          label="Total Cost"
+          id="total_cost"
+          type="number"
+          step="0.01"
+          min="0"
+          icon={IndianRupee}
+          value={values.total_cost}
+          onChange={handleChange('total_cost')}
+          error={errors.total_cost}
+        />
+      </div>
 
       <FormField
         label="Completion Date"
         id="completion_date"
         type="date"
+        icon={Calendar}
         value={values.completion_date}
         onChange={handleChange('completion_date')}
         error={errors.completion_date}
@@ -195,13 +204,9 @@ const ServiceRecordForm = ({ initialValues, onSubmit, submitting, serverError, s
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

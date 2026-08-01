@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { Layers, MapPin } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
 import Loader from './Loader.jsx';
+import Button from './ui/Button.jsx';
 
 const STOCK_STATUSES = ['In Stock', 'Low Stock', 'Out of Stock'];
 
@@ -72,31 +74,35 @@ const InventoryForm = ({ initialValues, onSubmit, submitting, serverError, submi
         ))}
       </SelectField>
 
-      <FormField
-        label="Quantity"
-        id="quantity"
-        type="number"
-        min="0"
-        value={values.quantity}
-        onChange={handleChange('quantity')}
-        error={errors.quantity}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          label="Quantity"
+          id="quantity"
+          type="number"
+          min="0"
+          icon={Layers}
+          value={values.quantity}
+          onChange={handleChange('quantity')}
+          error={errors.quantity}
+        />
 
-      <SelectField
-        label="Stock Status"
-        id="stock_status"
-        value={values.stock_status}
-        onChange={handleChange('stock_status')}
-        error={errors.stock_status}
-      >
-        {STOCK_STATUSES.map((status) => (
-          <option key={status} value={status}>{status}</option>
-        ))}
-      </SelectField>
+        <SelectField
+          label="Stock Status"
+          id="stock_status"
+          value={values.stock_status}
+          onChange={handleChange('stock_status')}
+          error={errors.stock_status}
+        >
+          {STOCK_STATUSES.map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </SelectField>
+      </div>
 
       <FormField
         label="Storage Location"
         id="storage_location"
+        icon={MapPin}
         value={values.storage_location}
         onChange={handleChange('storage_location')}
         error={errors.storage_location}
@@ -104,13 +110,9 @@ const InventoryForm = ({ initialValues, onSubmit, submitting, serverError, submi
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

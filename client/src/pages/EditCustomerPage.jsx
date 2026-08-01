@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
 import CustomerForm from '../components/CustomerForm.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import Card from '../components/ui/Card.jsx';
 import { getCustomerById, updateCustomer } from '../services/customer.service.js';
 
 const EditCustomerPage = () => {
@@ -39,18 +41,20 @@ const EditCustomerPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to={`/customers/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to customer
+    <div className="max-w-lg">
+      <Link to={`/customers/${id}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to customer
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Customer</h1>
-      <CustomerForm
-        mode="edit"
-        initialValues={customer}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-        serverError={serverError}
-      />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Edit Customer</h1>
+      <Card>
+        <CustomerForm
+          mode="edit"
+          initialValues={customer}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          serverError={serverError}
+        />
+      </Card>
     </div>
   );
 };

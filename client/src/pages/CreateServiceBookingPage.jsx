@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import ServiceBookingForm from '../components/ServiceBookingForm.jsx';
+import Card from '../components/ui/Card.jsx';
 import { createServiceBooking } from '../services/serviceBooking.service.js';
 
 const CreateServiceBookingPage = () => {
@@ -23,12 +25,14 @@ const CreateServiceBookingPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to="/service-bookings" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service bookings
+    <div className="max-w-lg">
+      <Link to="/service-bookings" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service bookings
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Create Service Booking</h1>
-      <ServiceBookingForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Booking" />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Create Service Booking</h1>
+      <Card>
+        <ServiceBookingForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Booking" />
+      </Card>
     </div>
   );
 };

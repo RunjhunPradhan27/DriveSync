@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Boxes, Pencil } from 'lucide-react';
 import useFetch from '../hooks/useFetch.js';
+import usePagination from '../hooks/usePagination.js';
 import { getAllInventory } from '../services/inventory.service.js';
 import { getAllVehicles } from '../services/vehicle.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { buildVehicleNameMap } from '../utils/entityMaps.js';
+import PageHeader from '../components/ui/PageHeader.jsx';
+import LinkButton from '../components/ui/LinkButton.jsx';
+import SearchInput from '../components/ui/SearchInput.jsx';
+import EmptyState from '../components/ui/EmptyState.jsx';
+import { IconLinkButton } from '../components/ui/IconButton.jsx';
+import Table, { theadClass, thClass, tbodyClass, trClass, tdClass, tdEmphasisClass } from '../components/ui/Table.jsx';
+import Pagination from '../components/ui/Pagination.jsx';
 
 const InventoryListPage = () => {
   const inventory = useFetch(getAllInventory, []);
@@ -35,73 +44,69 @@ const InventoryListPage = () => {
     );
   }, [enrichedInventory, searchTerm]);
 
+  const { page, setPage, pageCount, pageItems, total, pageSize } = usePagination(filteredInventory, 10);
+
   if (inventory.loading || vehicles.loading) return <Loader />;
   if (inventory.error) return <ErrorBanner message="Unable to load inventory right now." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-        <Link
-          to="/inventory/new"
-          className="rounded-md bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800"
-        >
-          Add Stock Record
-        </Link>
-      </div>
+      <PageHeader
+        icon={Boxes}
+        title="Inventory"
+        description="Vehicle stock levels by location"
+        actions={<LinkButton to="/inventory/new">Add Stock Record</LinkButton>}
+      />
 
-      <input
-        type="text"
+      <SearchInput
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search by vehicle, location, or stock status"
-        className="w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+        className="mb-4"
       />
 
       {(!inventory.data || inventory.data.length === 0) && (
-        <p className="text-gray-500">No inventory records yet. Click "Add Stock Record" to create one.</p>
+        <EmptyState icon={Boxes} title="No inventory records yet" description='Click "Add Stock Record" to create one.' />
       )}
 
       {inventory.data && inventory.data.length > 0 && filteredInventory.length === 0 && (
-        <p className="text-gray-500">No inventory records match your search.</p>
+        <EmptyState icon={Boxes} title="No inventory records match your search" />
       )}
 
-      {filteredInventory.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
-            <thead>
-              <tr className="text-left text-gray-500">
-                <th className="px-4 py-3 font-medium">Vehicle</th>
-                <th className="px-4 py-3 font-medium">Quantity</th>
-                <th className="px-4 py-3 font-medium">Stock Status</th>
-                <th className="px-4 py-3 font-medium">Location</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
+      {pageItems.length > 0 && (
+        <Table>
+          <thead className={theadClass}>
+            <tr>
+              <th className={thClass}>Vehicle</th>
+              <th className={thClass}>Quantity</th>
+              <th className={thClass}>Stock Status</th>
+              <th className={thClass}>Location</th>
+              <th className={thClass}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={tbodyClass}>
+            {pageItems.map((record) => (
+              <tr key={record.inventory_id} className={trClass}>
+                <td className={tdEmphasisClass}>
+                  <Link to={`/inventory/${record.inventory_id}`} className="hover:text-indigo-600">
+                    {record.vehicleName}
+                  </Link>
+                </td>
+                <td className={tdClass}>{record.quantity}</td>
+                <td className={tdClass}>
+                  <StatusBadge status={record.stock_status} />
+                </td>
+                <td className={tdClass}>{record.storage_location}</td>
+                <td className={tdClass}>
+                  <IconLinkButton to={`/inventory/${record.inventory_id}/edit`} icon={Pencil} label="Edit inventory record" />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredInventory.map((record) => (
-                <tr key={record.inventory_id}>
-                  <td className="px-4 py-3">
-                    <Link to={`/inventory/${record.inventory_id}`} className="font-medium text-gray-900 hover:underline">
-                      {record.vehicleName}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{record.quantity}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={record.stock_status} />
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{record.storage_location}</td>
-                  <td className="px-4 py-3">
-                    <Link to={`/inventory/${record.inventory_id}/edit`} className="text-gray-600 hover:text-gray-900">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </Table>
       )}
+
+      <Pagination page={page} pageCount={pageCount} onPageChange={setPage} total={total} pageSize={pageSize} />
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { AtSign, Mail, Lock, User, Phone, MapPin, Building2 } from 'lucide-react';
 import FormField from './FormField.jsx';
+import Button from './ui/Button.jsx';
 import { EMAIL_PATTERN } from '../utils/validators.js';
 
 /**
@@ -62,27 +64,29 @@ const CustomerForm = ({ mode, initialValues, onSubmit, submitting, serverError }
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {mode === 'create' && (
         <>
-          <FormField label="Username" id="username" value={values.username} onChange={handleChange('username')} error={errors.username} />
-          <FormField label="Email" id="email" type="email" value={values.email} onChange={handleChange('email')} error={errors.email} />
-          <FormField label="Password" id="password" type="password" value={values.password} onChange={handleChange('password')} error={errors.password} />
+          <FormField label="Username" id="username" icon={AtSign} value={values.username} onChange={handleChange('username')} error={errors.username} />
+          <FormField label="Email" id="email" type="email" icon={Mail} value={values.email} onChange={handleChange('email')} error={errors.email} />
+          <FormField label="Password" id="password" type="password" icon={Lock} value={values.password} onChange={handleChange('password')} error={errors.password} />
         </>
       )}
 
-      <FormField label="First Name" id="first_name" value={values.first_name} onChange={handleChange('first_name')} error={errors.first_name} />
-      <FormField label="Last Name" id="last_name" value={values.last_name} onChange={handleChange('last_name')} error={errors.last_name} />
-      <FormField label="Phone" id="phone" value={values.phone} onChange={handleChange('phone')} error={errors.phone} />
-      <FormField label="Address (optional)" id="address" value={values.address} onChange={handleChange('address')} />
-      <FormField label="City (optional)" id="city" value={values.city} onChange={handleChange('city')} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField label="First Name" id="first_name" icon={User} value={values.first_name} onChange={handleChange('first_name')} error={errors.first_name} />
+        <FormField label="Last Name" id="last_name" icon={User} value={values.last_name} onChange={handleChange('last_name')} error={errors.last_name} />
+      </div>
+
+      <FormField label="Phone" id="phone" icon={Phone} value={values.phone} onChange={handleChange('phone')} error={errors.phone} />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField label="Address (optional)" id="address" icon={MapPin} value={values.address} onChange={handleChange('address')} />
+        <FormField label="City (optional)" id="city" icon={Building2} value={values.city} onChange={handleChange('city')} />
+      </div>
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-md bg-gray-900 text-white py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <Button type="submit" disabled={submitting} className="w-full" size="lg">
         {submitting ? 'Saving…' : mode === 'create' ? 'Add Customer' : 'Save Changes'}
-      </button>
+      </Button>
     </form>
   );
 };

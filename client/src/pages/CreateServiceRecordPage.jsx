@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import ServiceRecordForm from '../components/ServiceRecordForm.jsx';
+import Card from '../components/ui/Card.jsx';
 import { createServiceRecord } from '../services/serviceRecord.service.js';
 
 const CreateServiceRecordPage = () => {
@@ -23,12 +25,14 @@ const CreateServiceRecordPage = () => {
   };
 
   return (
-    <div className="max-w-md">
-      <Link to="/service-records" className="text-sm text-gray-500 hover:text-gray-900">
-        &larr; Back to service records
+    <div className="max-w-lg">
+      <Link to="/service-records" className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900">
+        <ArrowLeft className="h-4 w-4" /> Back to service records
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Create Service Record</h1>
-      <ServiceRecordForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Record" />
+      <h1 className="mb-6 mt-2 text-2xl font-bold text-slate-900">Create Service Record</h1>
+      <Card>
+        <ServiceRecordForm onSubmit={handleSubmit} submitting={submitting} serverError={serverError} submitLabel="Create Record" />
+      </Card>
     </div>
   );
 };
