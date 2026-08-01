@@ -33,6 +33,10 @@ import ServiceRecordsListPage from './pages/ServiceRecordsListPage.jsx';
 import ServiceRecordDetailsPage from './pages/ServiceRecordDetailsPage.jsx';
 import CreateServiceRecordPage from './pages/CreateServiceRecordPage.jsx';
 import EditServiceRecordPage from './pages/EditServiceRecordPage.jsx';
+import EmployeeListPage from './pages/EmployeeListPage.jsx';
+import EmployeeDetailsPage from './pages/EmployeeDetailsPage.jsx';
+import AddEmployeePage from './pages/AddEmployeePage.jsx';
+import EditEmployeePage from './pages/EditEmployeePage.jsx';
 
 function App() {
   return (
@@ -53,6 +57,10 @@ function App() {
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
             <Route path="/admin" element={<AdminAreaPage />} />
+            <Route path="/employees" element={<EmployeeListPage />} />
+            <Route path="/employees/new" element={<AddEmployeePage />} />
+            <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+            <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Sales Executive']} />}>

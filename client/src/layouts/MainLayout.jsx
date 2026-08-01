@@ -36,7 +36,10 @@ const MainLayout = () => {
                   <Link to="/service-records" className="hover:text-gray-900">Service Records</Link>
                 )}
                 {user.role === 'Admin' && (
-                  <Link to="/admin" className="hover:text-gray-900">Admin</Link>
+                  <>
+                    <Link to="/employees" className="hover:text-gray-900">Employees</Link>
+                    <Link to="/admin" className="hover:text-gray-900">Admin</Link>
+                  </>
                 )}
                 <Link to="/account" className="hover:text-gray-900">My Account</Link>
                 <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
