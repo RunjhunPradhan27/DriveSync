@@ -1,0 +1,56 @@
+import { useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import useFetch from '../hooks/useFetch.js';
+import SparePartForm from '../components/SparePartForm.jsx';
+import Loader from '../components/Loader.jsx';
+import ErrorBanner from '../components/ErrorBanner.jsx';
+import { getSparePartById, updateSparePart } from '../services/spareParts.service.js';
+
+const EditSparePartPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: part, loading, error } = useFetch(() => getSparePartById(id), [id]);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState('');
+
+  if (loading) return <Loader />;
+
+  if (error) {
+    const notFound = error.response?.status === 404;
+    return (
+      <ErrorBanner message={notFound ? 'This spare part could not be found.' : 'Unable to load this spare part right now.'} />
+    );
+  }
+
+  const handleSubmit = async (values) => {
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await updateSparePart(id, values);
+      navigate(`/spare-parts/${id}`);
+    } catch (err) {
+      const message = err.response?.data?.message;
+      setServerError(message || 'Unable to save changes right now. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-md">
+      <Link to={`/spare-parts/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
+        &larr; Back to spare part
+      </Link>
+      <h1 className="text-2xl font-bold text-gray-900 mt-2 mb-6">Edit Spare Part</h1>
+      <SparePartForm
+        initialValues={part}
+        onSubmit={handleSubmit}
+        submitting={submitting}
+        serverError={serverError}
+        submitLabel="Save Changes"
+      />
+    </div>
+  );
+};
+
+export default EditSparePartPage;

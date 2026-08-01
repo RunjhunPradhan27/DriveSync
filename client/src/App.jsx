@@ -21,6 +21,10 @@ import InventoryListPage from './pages/InventoryListPage.jsx';
 import InventoryDetailsPage from './pages/InventoryDetailsPage.jsx';
 import CreateInventoryPage from './pages/CreateInventoryPage.jsx';
 import EditInventoryPage from './pages/EditInventoryPage.jsx';
+import SparePartsListPage from './pages/SparePartsListPage.jsx';
+import SparePartDetailsPage from './pages/SparePartDetailsPage.jsx';
+import CreateSparePartPage from './pages/CreateSparePartPage.jsx';
+import EditSparePartPage from './pages/EditSparePartPage.jsx';
 
 function App() {
   return (
@@ -60,6 +64,16 @@ function App() {
             <Route path="/inventory/new" element={<CreateInventoryPage />} />
             <Route path="/inventory/:id" element={<InventoryDetailsPage />} />
             <Route path="/inventory/:id/edit" element={<EditInventoryPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Inventory Manager', 'Technician']} />}>
+            <Route path="/spare-parts" element={<SparePartsListPage />} />
+            <Route path="/spare-parts/:id" element={<SparePartDetailsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Inventory Manager']} />}>
+            <Route path="/spare-parts/new" element={<CreateSparePartPage />} />
+            <Route path="/spare-parts/:id/edit" element={<EditSparePartPage />} />
           </Route>
         </Route>
       </Routes>

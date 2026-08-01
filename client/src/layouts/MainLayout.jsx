@@ -26,6 +26,9 @@ const MainLayout = () => {
                 {(user.role === 'Admin' || user.role === 'Inventory Manager') && (
                   <Link to="/inventory" className="hover:text-gray-900">Inventory</Link>
                 )}
+                {(user.role === 'Admin' || user.role === 'Inventory Manager' || user.role === 'Technician') && (
+                  <Link to="/spare-parts" className="hover:text-gray-900">Spare Parts</Link>
+                )}
                 {user.role === 'Admin' && (
                   <Link to="/admin" className="hover:text-gray-900">Admin</Link>
                 )}
