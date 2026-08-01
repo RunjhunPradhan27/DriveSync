@@ -9,7 +9,16 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  // Without this, mysql2 converts DATE/DATETIME/TIMESTAMP columns to JS Date
+  // objects using the server process's local timezone, then serializes them
+  // back to UTC via JSON.stringify — shifting any DATE column (which has no
+  // time component, so it's parsed at local midnight) to the previous day
+  // whenever the process runs in a timezone ahead of UTC. Every call site in
+  // this codebase already treats these fields as plain strings, so returning
+  // MySQL's native "YYYY-MM-DD[ HH:MM:SS]" text directly is a strictly
+  // correct fix with no downstream changes needed.
+  dateStrings: true
 });
 
 /**
