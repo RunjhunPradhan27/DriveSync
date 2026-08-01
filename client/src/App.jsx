@@ -29,6 +29,10 @@ import ServiceBookingsListPage from './pages/ServiceBookingsListPage.jsx';
 import ServiceBookingDetailsPage from './pages/ServiceBookingDetailsPage.jsx';
 import CreateServiceBookingPage from './pages/CreateServiceBookingPage.jsx';
 import EditServiceBookingPage from './pages/EditServiceBookingPage.jsx';
+import ServiceRecordsListPage from './pages/ServiceRecordsListPage.jsx';
+import ServiceRecordDetailsPage from './pages/ServiceRecordDetailsPage.jsx';
+import CreateServiceRecordPage from './pages/CreateServiceRecordPage.jsx';
+import EditServiceRecordPage from './pages/EditServiceRecordPage.jsx';
 
 function App() {
   return (
@@ -88,6 +92,13 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Sales Executive']} />}>
             <Route path="/service-bookings/new" element={<CreateServiceBookingPage />} />
             <Route path="/service-bookings/:id/edit" element={<EditServiceBookingPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Technician']} />}>
+            <Route path="/service-records" element={<ServiceRecordsListPage />} />
+            <Route path="/service-records/new" element={<CreateServiceRecordPage />} />
+            <Route path="/service-records/:id" element={<ServiceRecordDetailsPage />} />
+            <Route path="/service-records/:id/edit" element={<EditServiceRecordPage />} />
           </Route>
         </Route>
       </Routes>
