@@ -25,6 +25,10 @@ import SparePartsListPage from './pages/SparePartsListPage.jsx';
 import SparePartDetailsPage from './pages/SparePartDetailsPage.jsx';
 import CreateSparePartPage from './pages/CreateSparePartPage.jsx';
 import EditSparePartPage from './pages/EditSparePartPage.jsx';
+import ServiceBookingsListPage from './pages/ServiceBookingsListPage.jsx';
+import ServiceBookingDetailsPage from './pages/ServiceBookingDetailsPage.jsx';
+import CreateServiceBookingPage from './pages/CreateServiceBookingPage.jsx';
+import EditServiceBookingPage from './pages/EditServiceBookingPage.jsx';
 
 function App() {
   return (
@@ -74,6 +78,16 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Inventory Manager']} />}>
             <Route path="/spare-parts/new" element={<CreateSparePartPage />} />
             <Route path="/spare-parts/:id/edit" element={<EditSparePartPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Technician', 'Sales Executive']} />}>
+            <Route path="/service-bookings" element={<ServiceBookingsListPage />} />
+            <Route path="/service-bookings/:id" element={<ServiceBookingDetailsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Sales Executive']} />}>
+            <Route path="/service-bookings/new" element={<CreateServiceBookingPage />} />
+            <Route path="/service-bookings/:id/edit" element={<EditServiceBookingPage />} />
           </Route>
         </Route>
       </Routes>
