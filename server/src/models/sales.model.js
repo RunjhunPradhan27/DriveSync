@@ -1,10 +1,10 @@
 const { pool } = require('../config/db');
 
 /**
- * Sales Model
+ * Sale Model
  * Handles raw database operations for the 'sales' table.
  */
-const Sales = {
+const Sale = {
   /**
    * Inserts a new sale record into the database.
    * @param {Object} saleData - { customer_id, vehicle_id, employee_id, sale_date, sale_price, payment_method, sale_status }
@@ -98,4 +98,4 @@ const Sales = {
   }
 };
 
-module.exports = Sales;
+module.exports = Sale;

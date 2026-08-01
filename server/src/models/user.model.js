@@ -34,7 +34,7 @@ const User = {
       WHERE email = ?
     `;
 
-    const [rows] = await pool.execute(query, [email]);
+    const [rows] = await pool.query(query, [email]);
     return rows.length > 0 ? rows[0] : null;
   },
 

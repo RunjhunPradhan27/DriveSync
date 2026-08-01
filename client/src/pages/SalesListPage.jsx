@@ -9,6 +9,7 @@ import { getAllEmployees } from '../services/employee.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import { formatCurrency } from '../utils/formatters.js';
+import { buildCustomerNameMap, buildVehicleNameMap, buildEmployeeNameMap } from '../utils/entityMaps.js';
 
 const SalesListPage = () => {
   const { user } = useAuth();
@@ -23,18 +24,9 @@ const SalesListPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const customerMap = useMemo(
-    () => new Map((customers.data || []).map((c) => [c.customer_id, `${c.first_name} ${c.last_name}`])),
-    [customers.data]
-  );
-  const vehicleMap = useMemo(
-    () => new Map((vehicles.data || []).map((v) => [v.vehicle_id, `${v.make} ${v.model}`])),
-    [vehicles.data]
-  );
-  const employeeMap = useMemo(
-    () => new Map((employees.data || []).map((e) => [e.employee_id, `${e.first_name} ${e.last_name}`])),
-    [employees.data]
-  );
+  const customerMap = useMemo(() => buildCustomerNameMap(customers.data), [customers.data]);
+  const vehicleMap = useMemo(() => buildVehicleNameMap(vehicles.data), [vehicles.data]);
+  const employeeMap = useMemo(() => buildEmployeeNameMap(employees.data), [employees.data]);
 
   const enrichedSales = useMemo(() => {
     if (!sales.data) return [];

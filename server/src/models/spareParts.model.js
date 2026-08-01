@@ -1,10 +1,10 @@
 const { pool } = require('../config/db');
 
 /**
- * SpareParts Model
+ * SparePart Model
  * Handles raw database operations for the 'spare_parts' table.
  */
-const SpareParts = {
+const SparePart = {
   /**
    * Inserts a new spare part into the database.
    * @param {Object} partData - { part_name, part_number, quantity, unit_price, supplier_name }
@@ -88,4 +88,4 @@ const SpareParts = {
   }
 };
 
-module.exports = SpareParts;
+module.exports = SparePart;

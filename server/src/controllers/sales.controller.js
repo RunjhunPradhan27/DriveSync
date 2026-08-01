@@ -1,7 +1,7 @@
-const Sales = require('../models/sales.model');
+const Sale = require('../models/sales.model');
 
 /**
- * Sales Controller
+ * Sale Controller
  * Handles incoming HTTP requests, validates input, invokes model operations,
  * and formats HTTP responses for sales transaction resources.
  */
@@ -40,7 +40,7 @@ const createSale = async (req, res) => {
     }
 
     // Call Model to perform database insertion
-    const result = await Sales.create({
+    const result = await Sale.create({
       customer_id,
       vehicle_id,
       employee_id,
@@ -83,7 +83,7 @@ const createSale = async (req, res) => {
 const getAllSales = async (req, res) => {
   try {
     // Call Model to fetch all sales from database
-    const sales = await Sales.findAll();
+    const sales = await Sale.findAll();
 
     // Send HTTP 200 OK response
     return res.status(200).json({
@@ -109,7 +109,7 @@ const getAllSales = async (req, res) => {
 const getSaleById = async (req, res) => {
   try {
     const { id } = req.params;
-    const sale = await Sales.findById(id);
+    const sale = await Sale.findById(id);
 
     if (!sale) {
       return res.status(404).json({
@@ -160,7 +160,7 @@ const updateSale = async (req, res) => {
       });
     }
 
-    const result = await Sales.update(id, updates);
+    const result = await Sale.update(id, updates);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -192,7 +192,7 @@ const updateSale = async (req, res) => {
 const deleteSale = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Sales.delete(id);
+    const result = await Sale.delete(id);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({

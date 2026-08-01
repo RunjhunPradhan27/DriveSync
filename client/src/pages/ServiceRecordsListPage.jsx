@@ -10,6 +10,7 @@ import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { formatCurrency } from '../utils/formatters.js';
+import { buildVehicleNameMap, buildEmployeeNameMap } from '../utils/entityMaps.js';
 
 const ServiceRecordsListPage = () => {
   const { user } = useAuth();
@@ -24,10 +25,7 @@ const ServiceRecordsListPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const vehicleMap = useMemo(
-    () => new Map((vehicles.data || []).map((v) => [v.vehicle_id, `${v.make} ${v.model}`])),
-    [vehicles.data]
-  );
+  const vehicleMap = useMemo(() => buildVehicleNameMap(vehicles.data), [vehicles.data]);
   const bookingMap = useMemo(
     () => new Map((bookings.data || []).map((b) => [
       b.booking_id,
@@ -35,10 +33,7 @@ const ServiceRecordsListPage = () => {
     ])),
     [bookings.data, vehicleMap]
   );
-  const employeeMap = useMemo(
-    () => new Map((employees.data || []).map((e) => [e.employee_id, `${e.first_name} ${e.last_name}`])),
-    [employees.data]
-  );
+  const employeeMap = useMemo(() => buildEmployeeNameMap(employees.data), [employees.data]);
 
   const enrichedRecords = useMemo(() => {
     if (!records.data) return [];

@@ -76,7 +76,7 @@ const SaleForm = ({ initialValues, onSubmit, submitting, serverError, submitLabe
     });
   };
 
-  if (customers.loading || vehicles.loading) return <Loader />;
+  if (customers.loading || vehicles.loading || employees.loading) return <Loader />;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>

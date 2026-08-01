@@ -7,6 +7,7 @@ import { getAllEmployees } from '../services/employee.service.js';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
 import Loader from './Loader.jsx';
+import { buildVehicleNameMap } from '../utils/entityMaps.js';
 
 const SERVICE_RECORD_STATUSES = ['Completed', 'Cancelled'];
 
@@ -31,10 +32,7 @@ const ServiceRecordForm = ({ initialValues, onSubmit, submitting, serverError, s
   const vehicles = useFetch(getAllVehicles, []);
   const employees = useFetch(isAdmin ? getAllEmployees : () => Promise.resolve([]), [isAdmin]);
 
-  const vehicleMap = useMemo(
-    () => new Map((vehicles.data || []).map((v) => [v.vehicle_id, `${v.make} ${v.model}`])),
-    [vehicles.data]
-  );
+  const vehicleMap = useMemo(() => buildVehicleNameMap(vehicles.data), [vehicles.data]);
 
   const [values, setValues] = useState(() => ({
     booking_id: '',

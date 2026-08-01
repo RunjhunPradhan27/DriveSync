@@ -6,6 +6,7 @@ import { getAllVehicles } from '../services/vehicle.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import { buildVehicleNameMap } from '../utils/entityMaps.js';
 
 const InventoryListPage = () => {
   const inventory = useFetch(getAllInventory, []);
@@ -13,10 +14,7 @@ const InventoryListPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const vehicleMap = useMemo(
-    () => new Map((vehicles.data || []).map((v) => [v.vehicle_id, `${v.make} ${v.model}`])),
-    [vehicles.data]
-  );
+  const vehicleMap = useMemo(() => buildVehicleNameMap(vehicles.data), [vehicles.data]);
 
   const enrichedInventory = useMemo(() => {
     if (!inventory.data) return [];

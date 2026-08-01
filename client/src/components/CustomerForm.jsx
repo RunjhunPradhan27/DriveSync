@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import FormField from './FormField.jsx';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../utils/validators.js';
 
 /**
  * Shared form for both creating and editing a customer. In 'create' mode it

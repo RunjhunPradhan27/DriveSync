@@ -195,15 +195,7 @@ const getEmployeeById = async (req, res) => {
 // email is shared with the linked users row at creation time, role is an
 // RBAC-relevant account concern rather than a profile field, and user_id
 // must never be reassigned.
-const EMPLOYEE_UPDATABLE_FIELDS = [
-  'first_name',
-  'last_name',
-  'phone',
-  'designation',
-  'department',
-  'hire_date',
-  'salary'
-];
+const EMPLOYEE_UPDATABLE_FIELDS = ['first_name', 'last_name', 'phone', 'designation', 'department', 'hire_date', 'salary'];
 
 /**
  * Partially updates an employee's profile. Only fields present in the

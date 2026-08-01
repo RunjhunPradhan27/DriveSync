@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import CustomerForm from '../components/CustomerForm.jsx';
 import { createCustomer } from '../services/customer.service.js';
 
-const AddCustomerPage = () => {
+const CreateCustomerPage = () => {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -33,4 +33,4 @@ const AddCustomerPage = () => {
   );
 };
 
-export default AddCustomerPage;
+export default CreateCustomerPage;

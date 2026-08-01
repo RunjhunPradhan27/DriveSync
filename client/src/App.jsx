@@ -11,7 +11,7 @@ import AdminAreaPage from './pages/AdminAreaPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import CustomerListPage from './pages/CustomerListPage.jsx';
 import CustomerDetailsPage from './pages/CustomerDetailsPage.jsx';
-import AddCustomerPage from './pages/AddCustomerPage.jsx';
+import CreateCustomerPage from './pages/CreateCustomerPage.jsx';
 import EditCustomerPage from './pages/EditCustomerPage.jsx';
 import SalesListPage from './pages/SalesListPage.jsx';
 import SaleDetailsPage from './pages/SaleDetailsPage.jsx';
@@ -35,7 +35,7 @@ import CreateServiceRecordPage from './pages/CreateServiceRecordPage.jsx';
 import EditServiceRecordPage from './pages/EditServiceRecordPage.jsx';
 import EmployeeListPage from './pages/EmployeeListPage.jsx';
 import EmployeeDetailsPage from './pages/EmployeeDetailsPage.jsx';
-import AddEmployeePage from './pages/AddEmployeePage.jsx';
+import CreateEmployeePage from './pages/CreateEmployeePage.jsx';
 import EditEmployeePage from './pages/EditEmployeePage.jsx';
 
 function App() {
@@ -58,14 +58,14 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
             <Route path="/admin" element={<AdminAreaPage />} />
             <Route path="/employees" element={<EmployeeListPage />} />
-            <Route path="/employees/new" element={<AddEmployeePage />} />
+            <Route path="/employees/new" element={<CreateEmployeePage />} />
             <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
             <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Sales Executive']} />}>
             <Route path="/customers" element={<CustomerListPage />} />
-            <Route path="/customers/new" element={<AddCustomerPage />} />
+            <Route path="/customers/new" element={<CreateCustomerPage />} />
             <Route path="/customers/:id" element={<CustomerDetailsPage />} />
             <Route path="/customers/:id/edit" element={<EditCustomerPage />} />
 

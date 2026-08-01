@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import EmployeeForm from '../components/EmployeeForm.jsx';
 import { createEmployee } from '../services/employee.service.js';
 
-const AddEmployeePage = () => {
+const CreateEmployeePage = () => {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -33,4 +33,4 @@ const AddEmployeePage = () => {
   );
 };
 
-export default AddEmployeePage;
+export default CreateEmployeePage;

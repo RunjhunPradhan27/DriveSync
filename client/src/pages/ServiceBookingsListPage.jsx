@@ -8,6 +8,7 @@ import { getAllVehicles } from '../services/vehicle.service.js';
 import Loader from '../components/Loader.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
+import { buildCustomerNameMap, buildVehicleNameMap } from '../utils/entityMaps.js';
 
 const ServiceBookingsListPage = () => {
   const { user } = useAuth();
@@ -22,14 +23,8 @@ const ServiceBookingsListPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const customerMap = useMemo(
-    () => new Map((customers.data || []).map((c) => [c.customer_id, `${c.first_name} ${c.last_name}`])),
-    [customers.data]
-  );
-  const vehicleMap = useMemo(
-    () => new Map((vehicles.data || []).map((v) => [v.vehicle_id, `${v.make} ${v.model}`])),
-    [vehicles.data]
-  );
+  const customerMap = useMemo(() => buildCustomerNameMap(customers.data), [customers.data]);
+  const vehicleMap = useMemo(() => buildVehicleNameMap(vehicles.data), [vehicles.data]);
 
   const enrichedBookings = useMemo(() => {
     if (!bookings.data) return [];

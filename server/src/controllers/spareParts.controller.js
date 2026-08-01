@@ -1,7 +1,7 @@
-const SpareParts = require('../models/spareParts.model');
+const SparePart = require('../models/spareParts.model');
 
 /**
- * SpareParts Controller
+ * SparePart Controller
  * Handles incoming HTTP requests, validates input, invokes model operations,
  * and formats HTTP responses for spare parts resources.
  */
@@ -30,7 +30,7 @@ const createSparePart = async (req, res) => {
     }
 
     // Call Model to perform database insertion
-    const result = await SpareParts.create({
+    const result = await SparePart.create({
       part_name,
       part_number,
       quantity,
@@ -69,7 +69,7 @@ const createSparePart = async (req, res) => {
 const getAllSpareParts = async (req, res) => {
   try {
     // Call Model to fetch all spare parts from database
-    const parts = await SpareParts.findAll();
+    const parts = await SparePart.findAll();
 
     // Send HTTP 200 OK response
     return res.status(200).json({
@@ -95,7 +95,7 @@ const getAllSpareParts = async (req, res) => {
 const getSparePartById = async (req, res) => {
   try {
     const { id } = req.params;
-    const part = await SpareParts.findById(id);
+    const part = await SparePart.findById(id);
 
     if (!part) {
       return res.status(404).json({
@@ -144,7 +144,7 @@ const updateSparePart = async (req, res) => {
       });
     }
 
-    const result = await SpareParts.update(id, updates);
+    const result = await SparePart.update(id, updates);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -176,7 +176,7 @@ const updateSparePart = async (req, res) => {
 const deleteSparePart = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await SpareParts.delete(id);
+    const result = await SparePart.delete(id);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({

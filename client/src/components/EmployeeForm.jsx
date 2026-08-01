@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import FormField from './FormField.jsx';
 import SelectField from './SelectField.jsx';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../utils/validators.js';
 
 // Roles an Admin may assign when provisioning an employee account — mirrors
 // ALLOWED_EMPLOYEE_ROLES in employee.controller.js exactly ('Customer' is
 // never assignable here, matching the backend's own exclusion).
-const EMPLOYEE_ROLES = ['Admin', 'Sales Executive', 'Technician', 'Inventory Manager'];
+const ALLOWED_EMPLOYEE_ROLES = ['Admin', 'Sales Executive', 'Technician', 'Inventory Manager'];
 
 /**
  * Shared form for both creating and editing an employee, mirroring
@@ -88,7 +87,7 @@ const EmployeeForm = ({ mode, initialValues, onSubmit, submitting, serverError }
           <FormField label="Password" id="password" type="password" value={values.password} onChange={handleChange('password')} error={errors.password} />
           <SelectField label="Role" id="role" value={values.role} onChange={handleChange('role')} error={errors.role}>
             <option value="">Select a role</option>
-            {EMPLOYEE_ROLES.map((role) => (
+            {ALLOWED_EMPLOYEE_ROLES.map((role) => (
               <option key={role} value={role}>{role}</option>
             ))}
           </SelectField>

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth.js';
 import { login as loginRequest } from '../services/auth.service.js';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../utils/validators.js';
 
 const LoginPage = () => {
   const { login } = useAuth();
